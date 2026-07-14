@@ -1,0 +1,584 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODExTRMS</title>
+    <link rel="stylesheet" href="styles.css?v=3.2">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4ZD10SYHPX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4ZD10SYHPX');
+</script>
+</head>
+<body>
+    <!-- 3D Animated Background -->
+    <div class="bg-animation">
+        <div class="bg-circle circle-1"></div>
+        <div class="bg-circle circle-2"></div>
+        <div class="bg-circle circle-3"></div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        <i class="fas fa-wifi-slash"></i> You're offline
+    </div>
+
+    <!-- Overlay -->
+  <div class="overlay" id="overlay" style="z-index: 9998 !important;"></div>
+
+    <!-- Swipe Detection Area -->
+  <div class="swipe-area" id="swipeArea" style="z-index: 9997 !important;"></div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <div class="notifications-title">Notifications</div>
+            <div class="close-notifications" id="closeNotifications">&times;</div>
+        </div>
+        
+        <div id="notificationsList">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="video-modal">
+
+        <!-- White Header (Header 1) -->
+        <div class="player-topbar-white">
+            <div class="player-logo-wrap" onclick="localStorage.removeItem('codextrms_gateway_view_state'); document.getElementById('batchDataModal').classList.remove('active'); closePremiumVideo(); document.getElementById('overlay').style.display = 'none'; setActiveSection('dashboardSection');">
+                <!-- Custom Logo: orange circle inside a dark blue border -->
+                <div class="player-logo-icon">
+                    <div class="player-logo-dot"></div>
+                </div>
+                <span class="player-logo-text">CodexTRMS</span>
+            </div>
+            <div class="header-icons">
+                <div class="header-icon" id="playerNotificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-badge" id="playerNotificationBadge" style="display:none;">0</div>
+                </div>
+                <div class="header-icon" id="playerThemeToggleBtn">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blue Sub-header (Header 2) -->
+        <div class="player-topbar-blue">
+            <div class="player-sub-left">
+                <button id="videoBackBtn" class="player-back-btn-custom" type="button" aria-label="Back">
+                    <i class="fas fa-chevron-left"></i> BACK
+                </button>
+                <span id="videoBatchTitle" class="player-batch-title"></span>
+                <!-- Hidden to prevent JS errors -->
+                <div id="videoTitle" style="display:none;"></div>
+            </div>
+            <button id="attachmentsToggleBtn" style="padding:6px 14px; border-radius:999px; border:none; background:linear-gradient(45deg,var(--neon-blue),var(--neon-pink)); color:#000; font-weight:700; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                <i class="fas fa-paperclip"></i> Attachments
+            </button>
+        </div>
+
+    <!-- Body: Video + Attachments side by side -->
+    <div class="player-body" style="display:flex; flex:1; min-height:0; overflow:hidden;">
+
+        <!-- Left: Video + Controls + Info -->
+        <div class="player-main" style="flex:1; display:flex; flex-direction:column; min-width:0; overflow-y:auto;">
+
+            <!-- Video -->
+            <div class="player-video-wrap" style="position:relative; width:100%; background:#000;">
+                <video id="videoPlayer" style="width:100%; display:block; max-height:60vh; object-fit:contain;" playsinline controlsList="nodownload" oncontextmenu="return false;"></video>
+                <div id="tapLeft" style="position:absolute; left:0; top:0; width:35%; height:100%; z-index:5;"></div>
+                <div id="tapRight" style="position:absolute; right:0; top:0; width:35%; height:100%; z-index:5;"></div>
+                <div id="tapFeedbackLeft" style="position:absolute; left:15%; top:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.6); color:#fff; border-radius:50%; width:70px; height:70px; display:none; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-direction:column; gap:2px; z-index:6;">
+                    <i class="fas fa-backward" style="font-size:1.1rem;"></i>-10s
+                </div>
+                <div id="tapFeedbackRight" style="position:absolute; right:15%; top:50%; transform:translate(50%,-50%); background:rgba(0,0,0,0.6); color:#fff; border-radius:50%; width:70px; height:70px; display:none; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-direction:column; gap:2px; z-index:6;">
+                    <i class="fas fa-forward" style="font-size:1.1rem;"></i>+10s
+                </div>
+                <button id="telegramPlayerCloseBtn" class="telegram-player-close-btn" type="button" aria-label="Close player"><i class="fas fa-times"></i></button>
+                <button id="telegramSettingsBtn" class="telegram-settings-btn" type="button" aria-label="Player settings"><i class="fas fa-cog"></i></button>
+                <div class="floating-player-shell" id="floatingPlayerShell">
+                    <button id="floatingExpandBtn" class="floating-player-btn" type="button" aria-label="Expand player"><i class="fas fa-expand"></i></button>
+                    <button id="floatingPlayBtn" class="floating-player-btn" type="button" aria-label="Play or pause"><i class="fas fa-pause"></i></button>
+                    <button id="floatingCloseBtn" class="floating-player-btn floating-close-btn" type="button" aria-label="Close player"><i class="fas fa-times"></i></button>
+                    <div class="floating-player-title" id="floatingPlayerTitle"></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="premium-video-controls">
+                <div class="premium-progress-row">
+                    <span id="currentTime" class="premium-time">0:00</span>
+                    <div id="progressBarContainer" class="premium-progress-track" role="slider" aria-label="Video progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div id="progressBarFill" class="premium-progress-fill"></div>
+                        <div id="progressThumb" class="premium-progress-thumb"></div>
+                    </div>
+                    <span id="totalDuration" class="premium-time">0:00</span>
+                </div>
+                <div class="premium-control-row">
+                    <button id="playPauseBtn" class="premium-control-btn premium-play-btn" type="button" aria-label="Play or pause"><i class="fas fa-play"></i></button>
+                    <button id="skipBackBtn" class="premium-control-btn premium-skip-btn" type="button" aria-label="Back 10 seconds"><i class="fas fa-backward"></i><span>10</span></button>
+                    <button id="skipFwdBtn" class="premium-control-btn premium-skip-btn" type="button" aria-label="Forward 10 seconds"><span>10</span><i class="fas fa-forward"></i></button>
+                    <button id="muteBtn" class="premium-control-btn" type="button" aria-label="Mute"><i class="fas fa-volume-up"></i></button>
+                    <input id="volumeSlider" class="premium-volume-slider" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+                    <div class="premium-control-spacer"></div>
+                    <div style="position:relative;">
+                        <button id="speedBtn" class="premium-control-btn" type="button" aria-label="Settings"><i class="fas fa-cog"></i></button>
+                        <div id="speedMenu" style="display:none; position:absolute; bottom:36px; right:0; background:#1a1a2e; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:6px; min-width:80px; z-index:100; max-height:260px; overflow-y:auto;">
+                            <div class="speed-option" data-speed="0.5" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">0.5x</div>
+                            <div class="speed-option" data-speed="0.75" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">0.75x</div>
+                            <div class="speed-option" data-speed="1" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--neon-blue); text-align:center;">1x</div>
+                            <div class="speed-option" data-speed="1.25" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">1.25x</div>
+                            <div class="speed-option" data-speed="1.5" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">1.5x</div>
+                            <div class="speed-option" data-speed="1.75" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">1.75x</div>
+                            <div class="speed-option" data-speed="2" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">2x</div>
+                            <div class="speed-option" data-speed="2.25" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">2.25x</div>
+                            <div class="speed-option" data-speed="2.5" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">2.5x</div>
+                            <div class="speed-option" data-speed="2.75" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">2.75x</div>
+                            <div class="speed-option" data-speed="3" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">3x</div>
+                            <div class="speed-option" data-speed="3.5" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">3.5x</div>
+                            <div class="speed-option" data-speed="4" style="padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.8); text-align:center;">4x</div>
+                        </div>
+                    </div>
+                    <button id="videoDownloadBtn" class="premium-control-btn" type="button" aria-label="Download Video" style="display:inline-flex;"><i class="fas fa-download"></i></button>
+                    <button id="notesToggleBtn" class="premium-control-btn" type="button" aria-label="Study Notes" style="display:inline-flex;"><i class="fas fa-comment-alt"></i></button>
+                    <button id="fullscreenBtn" class="premium-control-btn" type="button" aria-label="Fullscreen"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+
+            <!-- Lecture Info + Quote -->
+            <div class="player-info-panel" style="padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.06);">
+                <div id="videoLectureName" style="font-weight:700; font-size:1rem; margin-bottom:10px;"></div>
+                <div id="videoQuote" style="font-size:0.85rem; color:var(--text-secondary); font-style:italic; border-left:3px solid var(--neon-blue); padding-left:10px; line-height:1.5;"></div>
+            </div>
+        </div>
+
+        <!-- Right: Attachments / Study Notes Sidebar Panel -->
+        <div id="attachmentsPanel" class="player-sidebar hidden" style="width:380px; min-width:320px; border-left:1px solid rgba(255,255,255,0.08); flex-direction:column; flex-shrink:0; background:rgba(10, 15, 26, 0.95);">
+            <div id="attachmentsList" style="overflow-y:auto; flex:1; padding:12px;"></div>
+            <div id="videoCommentsBox" class="video-comments-box" style="display:none; flex:1; flex-direction:column; min-height:0; margin-top:0; border:none; background:transparent;">
+                <div class="video-comments-head" style="padding:14px 16px 10px;">
+                    <div>
+                        <div class="video-comments-title">Study Notes</div>
+                        <div id="videoCommentsSub" class="video-comments-sub">Timestamped comments</div>
+                    </div>
+                    <button id="videoCommentCancelBtn" class="video-comment-cancel" type="button" style="display:none;">Cancel edit</button>
+                </div>
+                <div id="videoCommentsList" class="video-comments-list" style="flex:1; overflow-y:auto; padding:0 16px; max-height:none;"></div>
+                <div class="video-comment-compose" style="padding:12px 16px 16px; background:rgba(255,255,255,0.02); border-top:1px solid rgba(255,255,255,0.04);">
+                    <textarea id="videoCommentInput" rows="2" placeholder="Write a note for this moment..."></textarea>
+                    <button id="videoCommentAddBtn" type="button">
+                        <span id="videoCommentAddLabel">Add</span>
+                        <small id="videoCommentTimeLabel">0:00</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="telegramSettingsSheet" class="telegram-settings-sheet" aria-hidden="true">
+        <div class="telegram-sheet-handle"></div>
+        <button id="telegramSpeedRow" class="telegram-sheet-row" type="button">
+            <i class="fas fa-sliders-h"></i>
+            <span>Playback speed</span>
+            <strong id="telegramSpeedValue">1x</strong>
+        </button>
+        <div id="telegramSpeedChoices" class="telegram-speed-choices">
+            <button type="button" data-speed="0.5">0.5x</button>
+            <button type="button" data-speed="0.75">0.75x</button>
+            <button type="button" data-speed="1">1x</button>
+            <button type="button" data-speed="1.25">1.25x</button>
+            <button type="button" data-speed="1.5">1.5x</button>
+            <button type="button" data-speed="2">2x</button>
+        </div>
+        <button id="telegramPipBtn" class="telegram-sheet-row" type="button">
+            <i class="fas fa-tv"></i>
+            <span>Picture in picture</span>
+        </button>
+    </div>
+</div>
+
+    <div class="video-modal" id="batchDataModal">
+        <div class="video-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="control-btn" id="backToSubjectsBtn" style="display:none; width:34px; height:34px; min-width:34px;">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="video-title" id="batchDataTitle">Gateway Classes</div>
+            </div>
+            <div class="close-video" id="closeBatchData">&times;</div>
+        </div>
+        <div id="subjectPathStrip" class="subject-path-strip">
+    <div class="modal-search-row">
+        <button id="modalBatchBackBtn" class="modal-back-btn" type="button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </button>
+        <input
+            type="text"
+            id="subjectSearchInput"
+            placeholder="Search subjects..."
+            class="modal-search-input"
+        >
+        <span id="subjectPathLabel" style="display:none;"></span>
+    </div>
+    <div class="modal-tab-row">
+        <button id="allSubjectsTabBtn" class="batch-btn" style="padding:5px 14px; font-size:0.82rem;">All Subjects</button>
+        <button id="favoriteSubjectsTabBtn" class="batch-btn" style="padding:5px 14px; font-size:0.82rem; background: transparent; border: 1px solid rgba(255,255,255,0.22);">Favorites ❤️</button>
+    </div>
+</div>
+<div id="subjectControls" style="display:none;"></div>
+        <div class="video-container" style="display: flex; align-items: flex-start; justify-content: flex-start; flex: 1; min-height: 0; padding: 16px; overflow-y: auto;">
+            <div id="batchDataContent" style="width: 100%;"></div>
+        </div>
+    </div>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo" onclick="
+    localStorage.removeItem('codextrms_gateway_view_state');
+    document.getElementById('batchDataModal').classList.remove('active');
+    if (document.getElementById('videoPlayer') && document.getElementById('videoPlayer').src && document.getElementById('videoModal') && document.getElementById('videoModal').style.display === 'flex') minimizePremiumVideo();
+    document.getElementById('overlay').style.display = 'none';
+    setActiveSection('dashboardSection');
+" style="cursor:pointer; position:relative; z-index:99999; display:flex; align-items:center; gap:10px;">
+    <!-- Custom Logo: orange circle inside a dark blue border -->
+    <div class="player-logo-icon">
+        <div class="player-logo-dot"></div>
+    </div>
+    <div class="logo-text">CODExTRMS</div>
+</div>
+            <div class="header-icons">
+                <div class="header-icon" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-badge" id="notificationBadge" style="display:none;">0</div>
+                </div>
+                <div class="header-icon" id="themeToggleBtn">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section class="section active" id="dashboardSection">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">My Progress</div>
+                    <div class="card-menu">
+                        <div class="menu-dots" id="progressMenuBtn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </div>
+                        <div class="menu-options" id="progressMenu">
+                            <div class="menu-option" id="progressDetailsBtn">
+                                <i class="fas fa-chart-line"></i> View Details
+                            </div>
+                            <div class="menu-option" id="progressShareBtn">
+                                <i class="fas fa-share-alt"></i> Share
+                            </div>
+                            <div class="menu-option">
+                                <i class="fas fa-cog"></i> Settings
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div>Overall Completion: <span id="progressPercent">25</span>%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="mainProgress" style="width: 25%;"></div>
+                    </div>
+                </div>
+                <div id="studyStatsBox" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;"></div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">Continue Watching</div>
+                    <div class="card-more" onclick="showFullHistory()" style="cursor:pointer;">See All</div>
+                </div>
+                <div class="continue-watching">
+                    <div class="continue-item" id="continue1">
+                        <div class="continue-thumbnail">
+                            <i class="fas fa-atom"></i>
+                            <div class="favorite-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="continue-progress" style="width: 65%;"></div>
+                        </div>
+                        <div class="continue-info">
+                            <div class="continue-title">Lecture 1</div>
+                            <div class="continue-meta">
+                                <span>Gateway Classes</span>
+                                <span>125 min</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="continue-item" id="continue2">
+                        <div class="continue-thumbnail">
+                            <i class="fas fa-calculator"></i>
+                            <div class="favorite-icon">
+                                <i class="far fa-heart"></i>
+                            </div>
+                            <div class="continue-progress" style="width: 30%;"></div>
+                        </div>
+                        <div class="continue-info">
+                            <div class="continue-title">Box Model.ts</div>
+                            <div class="continue-meta">
+                                <span>Apna College</span>
+                                <span>1h 15m</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="continue-item" id="continue3">
+                        <div class="continue-thumbnail">
+                            <i class="fas fa-flask"></i>
+                            <div class="favorite-icon">
+                                <i class="far fa-heart"></i>
+                            </div>
+                            <div class="continue-progress" style="width: 80%;"></div>
+                        </div>
+                        <div class="continue-info">
+                            <div class="continue-title">Heading-and-paras</div>
+                            <div class="continue-meta">
+                                <span>Code With Harry</span>
+                                <span>30 min</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">Enrolled Batches</div>
+                </div>
+                <div class="continue-watching" id="pinnedBatchesContainer"></div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+<div class="card-title">Premium Features</div>
+</div>
+<div class="features-grid">
+    <div class="feature-card" onclick="showFavoritesModal()" style="cursor:pointer;">
+        <div class="feature-icon">
+            <i class="fas fa-heart"></i>
+        </div>
+        <div class="feature-name">Favorite's</div>
+    </div>
+    <div class="feature-card" onclick="window.showDownloadsModal()" style="cursor:pointer;">
+        <div class="feature-icon">
+            <i class="fas fa-download"></i>
+        </div>
+        <div class="feature-name">My Downloads</div>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="feature-name">Study Material</div>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="feature-name">Dashboard</div>
+    </div>
+    <div class="feature-card" onclick="showDonateModal()" style="cursor:pointer;">
+        <div class="feature-icon">
+            <i class="fas fa-hand-holding-heart"></i>
+        </div>
+        <div class="feature-name">Donate US</div>
+    </div>
+    <div class="feature-card" onclick="safeOpenExternal('https://t.me/+7q9n0MEJ0Jk1N2U1')" style="cursor:pointer;">
+        <div class="feature-icon">
+            <i class="fab fa-telegram"></i>
+        </div>
+        <div class="feature-name">Join Telegram</div>
+    </div>
+</div>
+            </div>
+            
+<div class="dashboard-card">
+  <div class="card-header">
+    <div class="card-title">
+      Recommended Courses 
+      <span style="font-size:0.65rem; background:linear-gradient(45deg,var(--neon-blue),var(--neon-pink)); color:#000; padding:2px 8px; border-radius:999px; font-weight:800; margin-left:6px;">For You</span>
+    </div>
+  </div>
+  <div class="continue-watching" id="recommendedCoursesContainer">
+    <!-- JS se inject hoga -->
+  </div>
+</div>
+        </section>
+        <!-- Courses Section -->
+        <section class="section" id="coursesSection">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="card-title">🔥 Popular Batches</div>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <input
+                type="text"
+                id="popularBatchSearch"
+                placeholder="Search batches by name..."
+                style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: var(--text-primary); outline: none;"
+            >
+        </div>
+        
+        <!-- Batch Grid Container -->
+        <div class="batch-grid">
+            <!-- Batch 1 -->
+            <div class="batch-card" id="gatewayBatchCard">
+                <div class="batch-image">
+                    <img src="https://www.image2url.com/r2/default/images/1776470092513-1033b344-25d1-4b03-a148-0d4ee9e71ddb.webp" alt="Gateway Batch">
+                    <div class="batch-badge">Trending</div>
+                </div>
+                <div class="batch-details">
+                    <h3 class="batch-title">GATEWAY – 1ST YEAR</h3>
+                    <p class="batch-instructor">Engineering Subjects</p>
+                    <div class="batch-meta">
+                        <span><i class="fas fa-users"></i> 2.5k+ students</span>
+                        <button class="batch-btn enroll-batch-btn" data-batch-key="dataClass13">Enroll Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch 2 -->
+            <div class="batch-card" id="apnaCollegeBatchCard">
+                <div class="batch-image">
+                   <img src="https://www.image2url.com/r2/default/images/1776470194797-536bb3c6-3692-4a7f-a090-496028f4b395.jpg" alt="Apna College">
+                </div>
+                <div class="batch-details">
+                    <h3 class="batch-title">APNA COLLEGE</h3>
+                    <p class="batch-instructor">By Shradha Khapra</p>
+                    <div class="batch-meta">
+                        <span><i class="fas fa-users"></i> 5k+ students</span>
+                        <button class="batch-btn enroll-batch-btn" data-batch-key="dataClass11">Enroll Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch 3 -->
+<div class="batch-card" id="chaiaurcodeBatchCard"> 
+                <div class="batch-image">
+                   <img src="https://www.image2url.com/r2/default/images/1776470301414-0174d86c-2568-43db-b56b-e9030e9d9f0d.png" alt="Chai Code">
+                </div>
+                <div class="batch-details">
+                    <h3 class="batch-title">CHAI aur CODE</h3>
+                    <p class="batch-instructor">By Hitesh Choudhary</p>
+                    <div class="batch-meta">
+                        <span><i class="fas fa-users"></i> 3.2k+ students</span>
+                        <button class="batch-btn enroll-batch-btn" data-batch-key="dataClass101">Enroll Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch 4 -->
+            <div class="batch-card" id="codewithharryBatchCard">
+                <div class="batch-image">
+                   <img src="https://www.image2url.com/r2/default/images/1776470471033-4af32288-22ec-452b-b10f-bf8fb80637c6.jpg" alt="Code With Harry" />
+                </div>
+                <div class="batch-details">
+                    <h3 class="batch-title">Code With Harry</h3>
+                    <p class="batch-instructor">Haris Ali Khan</p>
+                    <div class="batch-meta">
+                        <span><i class="fas fa-users"></i> 4.1k+ students</span>
+                        <button class="batch-btn enroll-batch-btn" data-batch-key="dataClass114">Enroll Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="popularBatchNoResults" style="display:none; margin-top:16px; color: var(--text-secondary);">No batch found.</div>
+    </div>
+</section>
+
+        <!-- Tests Section -->
+       <section class="section" id="testsSection">
+    <div id="doubt-section"></div>
+</section>
+
+        <section class="section" id="profileSection">
+            <!-- profile.js yahan inject karega -->
+          </section>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-section="dashboardSection">
+            <div class="nav-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div>Home</div>
+        </a>
+        <a href="#" class="nav-item" data-section="coursesSection">
+            <div class="nav-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div>Courses</div>
+        </a>
+        <a href="#" class="nav-item" data-section="testsSection">
+    <div class="nav-icon">
+        <i class="fas fa-brain"></i>
+    </div>
+    <div>B2GPT</div>
+</a>
+        <a href="#" class="nav-item" data-section="profileSection">
+            <div class="nav-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>Profile</div>
+        </a>
+    </nav>
+
+    <script src="batches/Otherbatch.js"></script>
+    <script src="batches/Dsaapna.js"></script>
+    <script src="batches/Dsa.js"></script>
+    <script src="batches/chaicode.js"></script>
+    <script src="batches/love.js"></script>
+    <script src="batches/wedding.js"></script>
+    <script src="batches/poh.js"></script>
+    <script src="batches/pwskill.js"></script>
+    <script src="batches/hhld.js"></script>
+    <script src="batches/Modeling.js"></script>
+    <script src="batches/udemy.js"></script>
+    <script src="batches/trading.js"></script>
+    <script src="batches/DevOps.js"></script>
+    <script src="batches/harkirat.js"></script>
+    <script src="batches/Shreyansh.js"></script>
+    <script src="batches/Campus.js"></script>
+    <script src="batches/codewithharry.js"></script>
+    <script src="batches/adca.js"></script>
+    <script src="batches/ineuron.js"></script>
+    <script src="batches/aktu3rd.js"></script>
+    <script src="batches/earners.js"></script>
+    <script src="batches/drop.js"></script>
+    <script src="batches/jasonfedin.js"></script>
+    <script src="doubt.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="profile.js"></script>
+
+    <!-- Telegram Channel Join Modal -->
+    <div id="telegramJoinModal" class="tg-modal-overlay" style="display: none;">
+        <div class="tg-modal-card">
+            <button class="tg-modal-close-btn" id="tgModalCloseBtn" aria-label="Close modal">&times;</button>
+            <div class="tg-modal-subheader">COMMUNITY ACCESS</div>
+            <h2 class="tg-modal-title">Join Telegram Channel</h2>
+            <p class="tg-modal-desc">Latest updates, quick help, and important announcements ke liye hamare Telegram channel se join ho jao.</p>
+            <a href="https://t.me/+7q9n0MEJ0Jk1N2U1" target="_blank" class="tg-modal-join-btn" id="tgModalJoinBtn">JOIN TELEGRAM CHANNEL</a>
+        </div>
+    </div>
+
+    <script src="script.js?v=3.2"></script>
+</body>
+</html>

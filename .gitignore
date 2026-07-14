@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.vscode/
+.gemini/
+.system_generated/
+*.log
+vite.config.js.timestamp*
+.DS_Store

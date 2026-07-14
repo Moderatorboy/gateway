@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodexTRMS PDF Notes</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        height: 100vh;
+        overflow: hidden;
+        background: #070a12;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .viewer-header {
+        background: #111827;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        z-index: 20;
+      }
+
+      .back-btn,
+      .tool-btn,
+      .color-btn {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        min-width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .tool-btn {
+        width: 40px;
+        padding: 0;
+        font-size: 0.82rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .tool-btn span {
+        display: none;
+      }
+
+      .tool-btn.active {
+        color: #050816;
+        border-color: transparent;
+        background: linear-gradient(45deg, #00f0ff, #ff1493);
+      }
+
+      .title-wrap {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .brand {
+        font-size: 0.72rem;
+        color: #00f0ff;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+      }
+
+      #docTitle {
+        margin-top: 2px;
+        font-size: 0.96rem;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .color-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .color-btn {
+        min-width: 28px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border-width: 2px;
+      }
+
+      .color-btn.active {
+        border-color: #fff;
+        transform: scale(1.08);
+      }
+
+      .palette {
+        position: absolute;
+        top: 42px;
+        right: 0;
+        width: 250px;
+        max-height: min(420px, 70vh);
+        overflow-y: auto;
+        display: none;
+        grid-template-columns: repeat(6, 32px);
+        gap: 8px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(17, 24, 39, 0.98);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        z-index: 40;
+      }
+
+      .palette.open {
+        display: grid;
+      }
+
+      .palette button {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        cursor: pointer;
+      }
+
+      .custom-color {
+        grid-column: span 6;
+        width: 100%;
+        height: 36px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .size-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 132px;
+        padding: 0 10px;
+        height: 40px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .size-control input {
+        width: 82px;
+        accent-color: #00f0ff;
+      }
+
+      .viewer-shell {
+        flex: 1;
+        position: relative;
+        overflow-y: auto;
+        overflow-x: auto;
+        background: #0b0f19;
+        padding: 18px 10px 40px;
+      }
+
+      .pages {
+        width: fit-content;
+        min-width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .page-wrap {
+        position: relative;
+        background: #111;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+      }
+
+      .pdf-page,
+      .note-layer {
+        display: block;
+      }
+
+      .note-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        touch-action: none;
+      }
+
+      .draw-mode .note-layer {
+        pointer-events: auto;
+        cursor: crosshair;
+      }
+
+      .scroll-mode [data-tool] {
+        opacity: 0.72;
+      }
+
+      .fallback-stage {
+        position: relative;
+        width: 100%;
+        min-width: 1000px;
+        height: 22000px;
+        display: none;
+      }
+
+      .fallback-frame {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 75vh;
+        border: 0;
+      }
+
+      .fallback-note {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        display: none;
+        pointer-events: none;
+        touch-action: none;
+      }
+
+      .draw-mode .fallback-note {
+        pointer-events: auto;
+        cursor: crosshair;
+      }
+
+      .fallback-mode .fallback-note {
+        pointer-events: auto;
+      }
+
+      .fallback-mode.scroll-mode .fallback-note {
+        cursor: grab;
+      }
+
+      .loader,
+      .toast {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 60;
+        border-radius: 999px;
+        font-weight: 900;
+      }
+
+      .loader {
+        top: 84px;
+        padding: 10px 18px;
+        background: rgba(17, 24, 39, 0.96);
+        border: 1px solid rgba(0, 240, 255, 0.25);
+        color: #00f0ff;
+      }
+
+      .toast {
+        bottom: 22px;
+        padding: 11px 18px;
+        background: linear-gradient(45deg, #00f0ff, #ff1493);
+        color: #050816;
+        display: none;
+      }
+
+      @media (max-width: 860px) {
+        .viewer-header {
+          align-items: flex-start;
+          flex-wrap: wrap;
+        }
+
+        .title-wrap {
+          flex-basis: calc(100% - 52px);
+        }
+
+        .toolbar {
+          width: 100%;
+          justify-content: flex-start;
+        }
+
+        .size-control span {
+          display: none;
+        }
+
+        .size-control {
+          min-width: 96px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="viewer-header">
+      <button class="back-btn" id="backBtn" title="Back">
+        <i class="ri-arrow-left-line"></i>
+      </button>
+      <div class="title-wrap">
+        <div class="brand">CODEXTRMS PDF NOTES</div>
+        <div id="docTitle">PDF Notes</div>
+      </div>
+      <div class="toolbar">
+        <button class="tool-btn active" data-tool="pen1" title="Pen 1">
+          <i class="ri-pencil-line"></i><span>Pen 1</span>
+        </button>
+        <button class="tool-btn" data-tool="pen2" title="Pen 2">
+          <i class="ri-mark-pen-line"></i><span>Pen 2</span>
+        </button>
+        <button class="tool-btn" data-tool="brush" title="Brush">
+          <i class="ri-brush-line"></i><span>Brush</span>
+        </button>
+        <button class="tool-btn" data-tool="highlighter" title="Highlighter">
+          <i class="ri-mark-pen-fill"></i><span>Highlight</span>
+        </button>
+        <button class="tool-btn" data-tool="eraseStroke" title="Erase stroke">
+          <i class="ri-eraser-fill"></i><span>Erase Stroke</span>
+        </button>
+        <button class="tool-btn" data-tool="erasePoint" title="Erase point">
+          <i class="ri-contrast-drop-2-line"></i><span>Erase Point</span>
+        </button>
+        <div class="size-control" title="Thickness">
+          <i class="ri-expand-width-line"></i>
+          <input id="sizeRange" type="range" min="2" max="36" value="4" />
+        </div>
+        <button class="tool-btn" id="undoBtn" title="Undo">
+          <i class="ri-arrow-go-back-line"></i><span>Undo</span>
+        </button>
+        <button class="tool-btn" id="redoBtn" title="Redo">
+          <i class="ri-arrow-go-forward-line"></i><span>Redo</span>
+        </button>
+        <div class="color-wrap">
+          <button
+            class="color-btn active"
+            id="colorPreview"
+            style="background: #111827"
+            title="Choose color"
+          ></button>
+          <div class="palette" id="palette"></div>
+        </div>
+        <button class="tool-btn" id="clearBtn" title="Clear page">
+          <i class="ri-delete-bin-line"></i><span>Clear</span>
+        </button>
+        <button class="tool-btn" id="saveBtn" title="Save to My Notes">
+          <i class="ri-save-3-line"></i><span>Save</span>
+        </button>
+        <button class="tool-btn" id="openBtn" title="Open original" style="display: none !important;">
+          <i class="ri-external-link-line"></i><span>Open</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="viewer-shell" id="viewerShell">
+      <div class="pages" id="pages"></div>
+      <div class="fallback-stage" id="fallbackStage">
+        <iframe
+          class="fallback-frame"
+          id="fallbackFrame"
+          title="PDF document"
+        ></iframe>
+        <canvas class="fallback-note" id="fallbackNote"></canvas>
+      </div>
+    </main>
+
+    <div class="loader" id="loader">
+      <i class="ri-loader-4-line ri-spin"></i> Loading PDF...
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const BASE_API =
+        "https://ascii-newspaper-whilst-year.trycloudflare.com/stream";
+      const STREAM_API_CANDIDATES = [
+        "https://ascii-newspaper-whilst-year.trycloudflare.com/stream/",
+      ];
+      const params = new URLSearchParams(window.location.search);
+      const title = params.get("title") || "PDF Notes";
+      const fileId = params.get("id");
+      let channelId = params.get("cid");
+      let pdfUrl = params.get("url");
+
+      if (!channelId || channelId === "undefined" || channelId === "null") {
+        channelId = "-1003875077565";
+      }
+
+      // FIX 1: Trailing slash properly handled to stop 404 pathing failures
+      if (!pdfUrl && fileId) {
+        pdfUrl = `${BASE_API}/${channelId}/${fileId}`;
+      }
+
+      if (pdfUrl) {
+        pdfUrl = pdfUrl.replace(
+          "https://ascii-newspaper-whilst-year.trycloudflare.com/stream/",
+          BASE_API + "/",
+        );
+      }
+
+      let pdfRenderUrl = pdfUrl;
+
+      const pagesEl = document.getElementById("pages");
+      const shell = document.getElementById("viewerShell");
+      const loader = document.getElementById("loader");
+      const fallbackStage = document.getElementById("fallbackStage");
+      const fallbackFrame = document.getElementById("fallbackFrame");
+      const fallbackNote = document.getElementById("fallbackNote");
+      const sizeRange = document.getElementById("sizeRange");
+      const colorPreview = document.getElementById("colorPreview");
+      const palette = document.getElementById("palette");
+
+      // FIX 2: Crash-Proof Encryption Wrapper logic to fix the White Blank Screen completely
+      let annotationKey = "pdf_note_default";
+      try {
+        const safeString = encodeURIComponent(pdfUrl || title);
+        annotationKey = `pdf_note_${btoa(safeString).replace(/=+$/g, "")}`;
+      } catch (e) {
+        console.warn(
+          "[Annotation Key Error] Falling back to timestamp reference.",
+        );
+        annotationKey = `pdf_note_${Date.now()}`;
+      }
+
+      const colors = [
+        "#111827",
+        "#ffffff",
+        "#ef4444",
+        "#f97316",
+        "#f59e0b",
+        "#fde047",
+        "#84cc16",
+        "#22c55e",
+        "#10b981",
+        "#14b8a6",
+        "#06b6d4",
+        "#00f0ff",
+        "#3b82f6",
+        "#6366f1",
+        "#8b5cf6",
+        "#a855f7",
+        "#d946ef",
+        "#ff1493",
+        "#f43f5e",
+        "#fb7185",
+        "#92400e",
+        "#78716c",
+        "#94a3b8",
+        "#020617",
+      ];
+      const toolDefaults = {
+        pen1: { size: 4, alpha: 1, composite: "source-over" },
+        pen2: { size: 8, alpha: 1, composite: "source-over" },
+        brush: { size: 18, alpha: 0.85, composite: "source-over" },
+        highlighter: { size: 24, alpha: 0.38, composite: "source-over" },
+        eraseStroke: { size: 24, alpha: 1, composite: "source-over" },
+        erasePoint: { size: 24, alpha: 1, composite: "source-over" },
+      };
+      let activeTool = "pen1";
+      let selectedColor = "#111827";
+      let isDrawing = false;
+      let activePage = null;
+      let lastPoint = null;
+      let pdfDoc = null;
+      let renderScale = 1.35;
+      let pageCanvases = new Map();
+      let strokesByPage = {};
+      let redoByPage = {};
+      let historyByPage = {};
+      let futureByPage = {};
+      let fallbackReady = false;
+
+      document.getElementById("docTitle").textContent = title;
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.style.display = "block";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 2200);
+      }
+
+      // FIX 3: Dynamic byte reader fallback for stream routing pipelines
+      async function inspectDocumentKind(url) {
+        try {
+          const response = await fetch(url, {
+            cache: "no-store",
+            headers: { Range: "bytes=0-15" },
+          });
+
+          if (response.status === 404) {
+            return { isPdf: false, isVideo: false, notFound: true };
+          }
+
+          const contentType = (
+            response.headers.get("content-type") || ""
+          ).toLowerCase();
+          const buffer = await response
+            .clone()
+            .arrayBuffer()
+            .catch(() => new ArrayBuffer(0));
+          const bytes = new Uint8Array(buffer);
+          const signature = String.fromCharCode(...bytes.slice(0, 4));
+
+          const isPdf =
+            contentType.includes("application/pdf") ||
+            signature === "%PDF" ||
+            url.toLowerCase().includes("pdf");
+          const isVideo =
+            contentType.startsWith("video/") ||
+            url.toLowerCase().includes("mp4");
+
+          return { contentType, isPdf, isVideo };
+        } catch (e) {
+          return {
+            contentType: "",
+            isPdf: true,
+            isVideo: false,
+            unknown: true,
+          };
+        }
+      }
+
+      function getStreamPath(url) {
+        const match = String(url || "").match(/\/stream\/(.+)$/);
+        return match ? match[1].replace(/^\/+/, "") : "";
+      }
+
+      function buildPdfCandidates(url) {
+        const streamPath = getStreamPath(url);
+        if (!streamPath) return [url].filter(Boolean);
+        return STREAM_API_CANDIDATES.map((base) => `${base}${streamPath}`);
+      }
+
+      async function resolvePdfRenderUrl() {
+        const kind = await inspectDocumentKind(pdfUrl);
+        if (kind.notFound) return kind;
+        if (kind.isPdf || kind.unknown) return kind;
+
+        const candidates = buildPdfCandidates(pdfUrl);
+        for (const candidate of candidates) {
+          const cKind = await inspectDocumentKind(candidate);
+          if (cKind.isPdf) {
+            pdfRenderUrl = candidate;
+            pdfUrl = candidate;
+            return cKind;
+          }
+        }
+        return kind;
+      }
+
+      function showUnsupportedDocument(message, options = {}) {
+        pagesEl.style.display = "none";
+        shell.classList.add("fallback-mode");
+        fallbackStage.style.display = "flex";
+        fallbackStage.style.alignItems = "center";
+        fallbackStage.style.justifyContent = "center";
+
+        const showRawButton = options.showRawButton !== false;
+        fallbackStage.innerHTML = `
+          <div style="max-width:520px;margin:40px auto;padding:22px;border-radius:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);text-align:center;">
+            <div style="font-size:1rem;font-weight:900;color:#ff4d6d;margin-bottom:8px;">Document Load Error</div>
+            <div style="font-size:0.86rem;line-height:1.6;color:rgba(255,255,255,0.72);">${message}</div>
+            ${showRawButton ? `<button id="openRawFileBtn" style="margin-top:16px;padding:9px 16px;border-radius:999px;border:none;background:linear-gradient(45deg,#00f0ff,#ff1493);color:#000;font-weight:800;cursor:pointer;">Open Raw File</button>` : `<button id="goBackBtn" style="margin-top:16px;padding:9px 16px;border-radius:999px;border:none;background:linear-gradient(45deg,#00f0ff,#ff1493);color:#000;font-weight:800;cursor:pointer;">Back</button>`}
+          </div>
+        `;
+
+        document
+          .getElementById("openRawFileBtn")
+          ?.addEventListener("click", () => {
+            if (pdfUrl) window.open(pdfUrl, "_blank");
+          });
+        document.getElementById("goBackBtn")?.addEventListener("click", () => {
+          if (history.length > 1) history.back();
+          else window.close();
+        });
+
+        const openBtn = document.getElementById("openBtn");
+        if (openBtn) {
+          openBtn.disabled = !showRawButton;
+          openBtn.style.opacity = showRawButton ? "1" : "0.45";
+        }
+        loader.style.display = "none";
+      }
+
+      function hexToRgba(hex, alpha) {
+        const value = hex.replace("#", "");
+        const bigint = parseInt(value, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+
+      function getToolConfig() {
+        const base = toolDefaults[activeTool] || toolDefaults.pen1;
+        const size = Number(sizeRange.value) || base.size;
+        return { ...base, size };
+      }
+
+      function readAnnotationStore() {
+        try {
+          return JSON.parse(
+            localStorage.getItem("pdf_annotations_json") || "{}",
+          );
+        } catch {
+          return {};
+        }
+      }
+
+      function persistAnnotations() {
+        const store = readAnnotationStore();
+        store[annotationKey] = {
+          title,
+          url: pdfUrl,
+          updatedAt: Date.now(),
+          pages: strokesByPage,
+        };
+        localStorage.setItem("pdf_annotations_json", JSON.stringify(store));
+      }
+
+      function loadAnnotations() {
+        const saved = readAnnotationStore()[annotationKey];
+        strokesByPage = saved?.pages || {};
+        redoByPage = {};
+        historyByPage = {};
+        futureByPage = {};
+      }
+
+      function cloneStrokes(strokes) {
+        return JSON.parse(JSON.stringify(strokes || []));
+      }
+
+      function pushHistory(pageNumber) {
+        historyByPage[pageNumber] = historyByPage[pageNumber] || [];
+        historyByPage[pageNumber].push(cloneStrokes(strokesByPage[pageNumber]));
+        if (historyByPage[pageNumber].length > 50)
+          historyByPage[pageNumber].shift();
+        futureByPage[pageNumber] = [];
+        redoByPage[pageNumber] = [];
+      }
+
+      function drawStroke(ctx, stroke, width, height) {
+        if (!stroke.points || stroke.points.length === 0) return;
+        ctx.save();
+        ctx.globalCompositeOperation = stroke.composite || "source-over";
+        ctx.fillStyle = stroke.color;
+        ctx.strokeStyle = stroke.color;
+        ctx.lineWidth = stroke.size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        if (stroke.points.length === 1) {
+          const point = stroke.points[0];
+          ctx.beginPath();
+          ctx.arc(
+            point.x * width,
+            point.y * height,
+            Math.max(1, stroke.size / 2),
+            0,
+            Math.PI * 2,
+          );
+          ctx.fill();
+          ctx.restore();
+          return;
+        }
+        ctx.beginPath();
+        stroke.points.forEach((point, index) => {
+          const x = point.x * width;
+          const y = point.y * height;
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function redrawPage(pageNumber) {
+        const entry = pageCanvases.get(Number(pageNumber));
+        if (!entry) return;
+        const { canvas, ctx } = entry;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        (strokesByPage[pageNumber] || []).forEach((stroke) =>
+          drawStroke(ctx, stroke, canvas.width, canvas.height),
+        );
+      }
+
+      function getCanvasPoint(event, pageNumber) {
+        const entry = pageCanvases.get(Number(pageNumber));
+        const rect = entry.canvas.getBoundingClientRect();
+        const source = event.touches?.[0] || event;
+        return {
+          x: Math.min(
+            1,
+            Math.max(0, (source.clientX - rect.left) / rect.width),
+          ),
+          y: Math.min(
+            1,
+            Math.max(0, (source.clientY - rect.top) / rect.height),
+          ),
+          width: rect.width,
+          height: rect.height,
+        };
+      }
+
+      function distanceToSegment(px, py, ax, ay, bx, by) {
+        const dx = bx - ax;
+        const dy = by - ay;
+        if (dx === 0 && dy === 0) return Math.hypot(px - ax, py - ay);
+        const t = Math.max(
+          0,
+          Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)),
+        );
+        return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+      }
+
+      function strokeDistance(stroke, point) {
+        const points = stroke.points || [];
+        if (!points.length) return Infinity;
+        if (points.length === 1) {
+          return Math.hypot(
+            (points[0].x - point.x) * point.width,
+            (points[0].y - point.y) * point.height,
+          );
+        }
+        let min = Infinity;
+        for (let index = 1; index < points.length; index += 1) {
+          min = Math.min(
+            min,
+            distanceToSegment(
+              point.x * point.width,
+              point.y * point.height,
+              points[index - 1].x * point.width,
+              points[index - 1].y * point.height,
+              points[index].x * point.width,
+              points[index].y * point.height,
+            ),
+          );
+        }
+        return min;
+      }
+
+      function eraseAt(event, pageNumber) {
+        event.preventDefault();
+        activePage = Number(pageNumber);
+        const point = getCanvasPoint(event, activePage);
+        const radius = Math.max(10, Number(sizeRange.value) || 24);
+        const strokes = strokesByPage[activePage] || [];
+        if (!strokes.length) return;
+
+        if (activeTool === "eraseStroke") {
+          let targetIndex = -1;
+          let targetDistance = Infinity;
+          strokes.forEach((stroke, index) => {
+            const distance = strokeDistance(stroke, point);
+            if (distance < targetDistance) {
+              targetDistance = distance;
+              targetIndex = index;
+            }
+          });
+          if (targetIndex >= 0 && targetDistance <= radius) {
+            pushHistory(activePage);
+            strokesByPage[activePage].splice(targetIndex, 1);
+            redrawPage(activePage);
+            persistAnnotations();
+          }
+          return;
+        }
+
+        let changed = false;
+        const nextStrokes = [];
+        strokes.forEach((stroke) => {
+          let segment = [];
+          (stroke.points || []).forEach((strokePoint) => {
+            const distance = Math.hypot(
+              (strokePoint.x - point.x) * point.width,
+              (strokePoint.y - point.y) * point.height,
+            );
+            if (distance <= radius) {
+              changed = true;
+              if (segment.length) {
+                nextStrokes.push({ ...stroke, points: segment });
+                segment = [];
+              }
+            } else {
+              segment.push(strokePoint);
+            }
+          });
+          if (segment.length) nextStrokes.push({ ...stroke, points: segment });
+        });
+
+        if (changed) {
+          pushHistory(activePage);
+          strokesByPage[activePage] = nextStrokes;
+          redrawPage(activePage);
+          persistAnnotations();
+        }
+      }
+
+      function addStrokePoint(event) {
+        if (!shell.classList.contains("draw-mode")) return;
+        if (!isDrawing || !activePage) return;
+        if (activeTool === "eraseStroke" || activeTool === "erasePoint") {
+          eraseAt(event, activePage);
+          return;
+        }
+        event.preventDefault();
+        const point = getCanvasPoint(event, activePage);
+        lastPoint.points.push(point);
+        redrawPage(activePage);
+      }
+
+      function startStroke(event, pageNumber) {
+        if (!shell.classList.contains("draw-mode")) return;
+        event.preventDefault();
+        activePage = Number(pageNumber);
+        if (activeTool === "eraseStroke" || activeTool === "erasePoint") {
+          isDrawing = true;
+          eraseAt(event, activePage);
+          return;
+        }
+        const config = getToolConfig();
+        const color = hexToRgba(selectedColor, config.alpha);
+        const point = getCanvasPoint(event, activePage);
+        lastPoint = {
+          tool: activeTool,
+          color,
+          size: config.size,
+          composite: config.composite,
+          points: [{ x: point.x, y: point.y }],
+        };
+        strokesByPage[activePage] = strokesByPage[activePage] || [];
+        pushHistory(activePage);
+        strokesByPage[activePage].push(lastPoint);
+        isDrawing = true;
+      }
+
+      function endStroke() {
+        if (!isDrawing) return;
+        isDrawing = false;
+        lastPoint = null;
+        persistAnnotations();
+      }
+
+      function setTool(tool) {
+        activeTool = tool;
+        document
+          .querySelectorAll("[data-tool]")
+          .forEach((btn) =>
+            btn.classList.toggle("active", btn.dataset.tool === tool),
+          );
+        sizeRange.value = toolDefaults[tool]?.size || 4;
+      }
+
+      function setDrawMode(enabled) {
+        shell.classList.toggle("draw-mode", enabled);
+        shell.classList.toggle("scroll-mode", !enabled);
+        document.querySelectorAll("[data-tool]").forEach((btn) => {
+          if (!enabled) btn.classList.remove("active");
+          else btn.classList.toggle("active", btn.dataset.tool === activeTool);
+        });
+      }
+
+      function handleToolClick(tool) {
+        const isSameActiveTool =
+          activeTool === tool && shell.classList.contains("draw-mode");
+        if (isSameActiveTool) {
+          setDrawMode(false);
+          return;
+        }
+        setTool(tool);
+        setDrawMode(true);
+      }
+
+      function undo() {
+        const pageNumber = activePage || Number([...pageCanvases.keys()][0]);
+        if (!pageNumber || !historyByPage[pageNumber]?.length) return;
+        futureByPage[pageNumber] = futureByPage[pageNumber] || [];
+        futureByPage[pageNumber].push(cloneStrokes(strokesByPage[pageNumber]));
+        strokesByPage[pageNumber] = historyByPage[pageNumber].pop();
+        redrawPage(pageNumber);
+        persistAnnotations();
+      }
+
+      function redo() {
+        const pageNumber = activePage || Number([...pageCanvases.keys()][0]);
+        if (!pageNumber || !futureByPage[pageNumber]?.length) return;
+        historyByPage[pageNumber] = historyByPage[pageNumber] || [];
+        historyByPage[pageNumber].push(cloneStrokes(strokesByPage[pageNumber]));
+        strokesByPage[pageNumber] = futureByPage[pageNumber].pop();
+        redrawPage(pageNumber);
+        persistAnnotations();
+      }
+
+      function clearCurrentPage() {
+        const pageNumber = activePage || Number([...pageCanvases.keys()][0]);
+        if (!pageNumber) return;
+        pushHistory(pageNumber);
+        strokesByPage[pageNumber] = [];
+        redrawPage(pageNumber);
+        persistAnnotations();
+        showToast("Current page clear ho gaya.");
+      }
+
+      function resizeFallbackCanvas() {
+        const rect = fallbackStage.getBoundingClientRect();
+        fallbackNote.width = Math.max(1, Math.floor(rect.width));
+        fallbackNote.height = Math.max(1, Math.floor(rect.height));
+        fallbackNote.style.width = `${rect.width}px`;
+        fallbackNote.style.height = `${rect.height}px`;
+        const ctx = fallbackNote.getContext("2d");
+        pageCanvases.set(1, { canvas: fallbackNote, ctx });
+        redrawPage(1);
+      }
+
+      function enableFallbackAnnotation() {
+        if (fallbackReady) return;
+        fallbackReady = true;
+        fallbackNote.addEventListener("mousedown", (event) =>
+          startStroke(event, 1),
+        );
+        fallbackNote.addEventListener("mousemove", addStrokePoint);
+        fallbackNote.addEventListener(
+          "wheel",
+          (event) => {
+            if (shell.classList.contains("draw-mode")) return;
+            event.preventDefault();
+            shell.scrollBy({
+              top: event.deltaY,
+              left: event.deltaX,
+              behavior: "auto",
+            });
+          },
+          { passive: false },
+        );
+
+        fallbackNote.addEventListener(
+          "touchstart",
+          (event) => startStroke(event, 1),
+          { passive: false },
+        );
+        fallbackNote.addEventListener("touchmove", addStrokePoint, {
+          passive: false,
+        });
+        resizeFallbackCanvas();
+      }
+
+      function saveToMyNotes() {
+        if (!pdfUrl) {
+          showToast("PDF link missing hai.");
+          return;
+        }
+        persistAnnotations();
+        const downloads = JSON.parse(
+          localStorage.getItem("my_downloads") || "[]",
+        );
+        const existingIndex = downloads.findIndex(
+          (item) =>
+            item.type === "my-note" && item.annotationKey === annotationKey,
+        );
+        const item = {
+          fileId: fileId || "",
+          channelId,
+          title,
+          type: "my-note",
+          savedAt: Date.now(),
+          url: pdfUrl,
+          annotationKey,
+        };
+        if (existingIndex >= 0) downloads.splice(existingIndex, 1);
+        downloads.unshift(item);
+        localStorage.setItem("my_downloads", JSON.stringify(downloads));
+        showToast("My Notes mein save ho gaya.");
+      }
+
+      function buildPalette() {
+        colors.forEach((color) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.style.background = color;
+          button.title = color;
+          button.addEventListener("click", () => {
+            selectedColor = color;
+            colorPreview.style.background = color;
+            palette.classList.remove("open");
+          });
+          palette.appendChild(button);
+        });
+        const custom = document.createElement("input");
+        custom.type = "color";
+        custom.className = "custom-color";
+        custom.value = selectedColor;
+        custom.addEventListener("input", () => {
+          selectedColor = custom.value;
+          colorPreview.style.background = selectedColor;
+        });
+        palette.appendChild(custom);
+      }
+
+      async function renderPageCanvas(pageNum) {
+        const entry = pageCanvases.get(pageNum);
+        if (!entry) return;
+        try {
+          await entry.page.render({
+            canvasContext: entry.pdfCanvas.getContext("2d"),
+            viewport: entry.viewport,
+          }).promise;
+        } catch (e) {
+          console.error(`Page ${pageNum} render failed`, e);
+        }
+      }
+
+      async function renderDocPages() {
+        pagesEl.innerHTML = "";
+        const availableWidth = Math.max(
+          320,
+          Math.min(shell.clientWidth - 28, 1180),
+        );
+        
+        const pageRenderStatus = new Set();
+        
+        for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
+          const page = await pdfDoc.getPage(pageNumber);
+          const baseViewport = page.getViewport({ scale: 1 });
+          renderScale = availableWidth / baseViewport.width;
+          const viewport = page.getViewport({ scale: renderScale });
+          const pageWrap = document.createElement("div");
+          pageWrap.className = "page-wrap";
+          pageWrap.style.width = `${viewport.width}px`;
+          pageWrap.style.height = `${viewport.height}px`;
+          pageWrap.dataset.pageNumber = pageNumber;
+
+          const pdfCanvas = document.createElement("canvas");
+          pdfCanvas.className = "pdf-page";
+          pdfCanvas.width = Math.floor(viewport.width);
+          pdfCanvas.height = Math.floor(viewport.height);
+          pdfCanvas.style.width = `${viewport.width}px`;
+          pdfCanvas.style.height = `${viewport.height}px`;
+
+          const noteCanvas = document.createElement("canvas");
+          noteCanvas.className = "note-layer";
+          noteCanvas.dataset.page = pageNumber;
+          noteCanvas.width = Math.floor(viewport.width);
+          noteCanvas.height = Math.floor(viewport.height);
+          noteCanvas.style.width = `${viewport.width}px`;
+          noteCanvas.style.height = `${viewport.height}px`;
+
+          pageWrap.appendChild(pdfCanvas);
+          pageWrap.appendChild(noteCanvas);
+          pagesEl.appendChild(pageWrap);
+
+          pageCanvases.set(pageNumber, {
+            canvas: noteCanvas,
+            ctx: noteCanvas.getContext("2d"),
+            page: page,
+            viewport: viewport,
+            pdfCanvas: pdfCanvas
+          });
+
+          noteCanvas.addEventListener("mousedown", (event) =>
+            startStroke(event, pageNumber),
+          );
+          noteCanvas.addEventListener("mousemove", addStrokePoint);
+          noteCanvas.addEventListener(
+            "touchstart",
+            (event) => startStroke(event, pageNumber),
+            { passive: false },
+          );
+          noteCanvas.addEventListener("touchmove", addStrokePoint, {
+            passive: false,
+          });
+          
+          redrawPage(pageNumber);
+        }
+        
+        // Lazy-render pages using IntersectionObserver
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const pageNum = Number(entry.target.dataset.pageNumber);
+              if (!pageRenderStatus.has(pageNum)) {
+                pageRenderStatus.add(pageNum);
+                renderPageCanvas(pageNum);
+              }
+            }
+          });
+        }, {
+          root: shell,
+          rootMargin: "600px 0px 600px 0px",
+          threshold: 0.01
+        });
+        
+        document.querySelectorAll('.page-wrap').forEach(wrap => observer.observe(wrap));
+        loader.style.display = "none";
+      }
+
+      async function renderPdf() {
+        if (!pdfUrl) {
+          loader.textContent = "Error: Document link missing";
+          return;
+        }
+        
+        if (!window.pdfjsLib) {
+          showFallback();
+          return;
+        }
+        
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+          
+        try {
+          // Direct load happy path (extremely fast)
+          const task = pdfjsLib.getDocument({
+            url: pdfRenderUrl,
+            disableStream: true,
+            disableAutoFetch: true,
+          });
+          pdfDoc = await task.promise;
+          await renderDocPages();
+        } catch (error) {
+          console.warn("Direct PDF render failed, resolving URL candidates...", error);
+          try {
+            const kind = await resolvePdfRenderUrl();
+            if (kind.notFound) {
+              showUnsupportedDocument(
+                "Server par ye path nahi mila. Cloudflare Tunnel endpoints routing check kijiye.",
+              );
+              return;
+            }
+            if (kind.isVideo) {
+              showUnsupportedDocument(
+                "Is file id par server video/mp4 bhej raha hai. Mapped notes_id check kijiye.",
+                { showRawButton: false },
+              );
+              return;
+            }
+            if (!kind.unknown && !kind.isPdf) {
+              showUnsupportedDocument(
+                `Is file ka type PDF nahi hai${kind.contentType ? ` (${kind.contentType})` : ""}.`,
+              );
+              return;
+            }
+            
+            const task = pdfjsLib.getDocument({
+              url: pdfRenderUrl,
+              disableStream: true,
+              disableAutoFetch: true,
+            });
+            pdfDoc = await task.promise;
+            await renderDocPages();
+          } catch (e) {
+            console.error("All PDF render attempts failed", e);
+            showFallback();
+          }
+        }
+      }
+
+      function showFallback() {
+        pagesEl.style.display = "none";
+        shell.classList.add("fallback-mode");
+        fallbackStage.style.display = "block";
+        fallbackNote.style.display = "block";
+        fallbackFrame.src = `${pdfRenderUrl || pdfUrl}#toolbar=1&navpanes=0&scrollbar=0`;
+        enableFallbackAnnotation();
+        loader.textContent =
+          "Fallback mode: outer page scroll use karo, notes saath chalenge.";
+        setTimeout(() => {
+          loader.style.display = "none";
+        }, 2800);
+      }
+
+      document.getElementById("backBtn").addEventListener("click", () => {
+        if (history.length > 1) history.back();
+        else window.close();
+      });
+      document.getElementById("openBtn").addEventListener("click", () => {
+        if (pdfUrl) window.open(pdfUrl, "_blank");
+      });
+      document
+        .getElementById("saveBtn")
+        .addEventListener("click", saveToMyNotes);
+      document
+        .getElementById("clearBtn")
+        .addEventListener("click", clearCurrentPage);
+      document.getElementById("undoBtn").addEventListener("click", undo);
+      document.getElementById("redoBtn").addEventListener("click", redo);
+      colorPreview.addEventListener("click", () =>
+        palette.classList.toggle("open"),
+      );
+      document.querySelectorAll("[data-tool]").forEach((btn) => {
+        btn.addEventListener("click", () => handleToolClick(btn.dataset.tool));
+      });
+      window.addEventListener("mouseup", endStroke);
+      window.addEventListener("touchend", endStroke);
+      window.addEventListener("resize", () => {
+        if (fallbackReady) resizeFallbackCanvas();
+      });
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".color-wrap"))
+          palette.classList.remove("open");
+      });
+
+      buildPalette();
+      loadAnnotations();
+      setDrawMode(true);
+      renderPdf();
+    </script>
+  </body>
+</html>
