@@ -939,7 +939,7 @@ async function deleteVideoBlob(videoId) {
 
                 // Iframe element
                 const iframe = document.createElement('iframe');
-                iframe.src = 'https://clg.codextrms.in/';
+                iframe.src = '/apna-college-frame/';
                 iframe.style.cssText = 'flex:1;width:100%;height:calc(100% - 60px);border:none;background:#0b0f19;opacity:0;transition:opacity 0.4s ease;';
                 iframe.onload = () => {
                     spinner.style.display = 'none';
@@ -967,7 +967,7 @@ async function deleteVideoBlob(videoId) {
                 if (spinner) spinner.style.display = 'flex';
                 if (iframe) {
                     iframe.style.opacity = '0';
-                    iframe.src = 'https://clg.codextrms.in/';
+                    iframe.src = '/apna-college-frame/';
                 }
             }
             updateUrlState();
