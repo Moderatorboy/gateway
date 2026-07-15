@@ -821,10 +821,14 @@ async function deleteVideoBlob(videoId) {
             const isVideoOpen = modal && modal.style.display === 'flex';
             const batchModal = document.getElementById('batchDataModal');
             const isBatchOpen = batchModal && batchModal.classList.contains('active');
+            const frameModal = document.getElementById('apnaCollegeFrameModal');
+            const isFrameOpen = frameModal && frameModal.style.display === 'flex';
 
             let url = window.location.pathname;
 
-            if (isBatchOpen) {
+            if (isFrameOpen) {
+                url += '?batch=dataClass11';
+            } else if (isBatchOpen) {
                 const params = new URLSearchParams();
                 if (currentBatchDataKey) params.set('batch', currentBatchDataKey);
                 if (selectedSubjectIndex >= 0) params.set('subject', selectedSubjectIndex);
@@ -854,6 +858,11 @@ async function deleteVideoBlob(videoId) {
             const videoId = params.get('video');
 
             if (!batchKey) return;
+
+            if (batchKey === 'dataClass11') {
+                openApnaCollegeIframe();
+                return;
+            }
 
             const source = getGatewayBatchSources().find(item => item.dataKey === batchKey);
             if (!source) return;
@@ -900,6 +909,71 @@ async function deleteVideoBlob(videoId) {
                 }
             }
         };
+        const openApnaCollegeIframe = () => {
+            let frameModal = document.getElementById('apnaCollegeFrameModal');
+            if (!frameModal) {
+                frameModal = document.createElement('div');
+                frameModal.id = 'apnaCollegeFrameModal';
+                frameModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#0b0f19;z-index:999999;display:flex;flex-direction:column;animation:fadeIn 0.3s ease;';
+                
+                // Header bar with back/close button
+                const header = document.createElement('div');
+                header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:#0d1527;border-bottom:1px solid rgba(255,255,255,0.06);height:60px;box-sizing:border-box;';
+                header.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <button id="closeApnaFrameBtn" style="background:transparent;border:none;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:6px;transition:all 0.2s;"><i class="fas fa-chevron-left"></i> BACK</button>
+                        <span style="color:#fff;font-family:\'Poppins\',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:0.5px;">APNA COLLEGE</span>
+                    </div>
+                    <div style="color:var(--neon-blue,#00f0ff);font-family:\'Poppins\',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;background:rgba(0,240,255,0.06);padding:4px 12px;border-radius:999px;border:1px solid rgba(0,240,255,0.15);">Integrated View</div>
+                `;
+                frameModal.appendChild(header);
+
+                // Loader spinner for iframe loading state
+                const spinner = document.createElement('div');
+                spinner.id = 'apnaFrameSpinner';
+                spinner.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000000;display:flex;flex-direction:column;align-items:center;gap:16px;';
+                spinner.innerHTML = `
+                    <div style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.1);border-top:4px solid var(--neon-blue,#00f0ff);border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 15px rgba(0,240,255,0.3);"></div>
+                    <div style="color:#fff;font-size:0.85rem;font-family:\'Poppins\',sans-serif;animation:pulse 1.5s infinite;">Loading secure learning space...</div>
+                `;
+                frameModal.appendChild(spinner);
+
+                // Iframe element
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://clg.codextrms.in/';
+                iframe.style.cssText = 'flex:1;width:100%;height:calc(100% - 60px);border:none;background:#0b0f19;opacity:0;transition:opacity 0.4s ease;';
+                iframe.onload = () => {
+                    spinner.style.display = 'none';
+                    iframe.style.opacity = '1';
+                };
+                frameModal.appendChild(iframe);
+
+                document.body.appendChild(frameModal);
+
+                // Back button click listener
+                frameModal.querySelector('#closeApnaFrameBtn').addEventListener('click', () => {
+                    frameModal.style.display = 'none';
+                    iframe.src = 'about:blank';
+                    updateUrlState();
+                });
+                
+                // Add hover effect style to BACK button
+                const backBtn = frameModal.querySelector('#closeApnaFrameBtn');
+                backBtn.addEventListener('mouseenter', () => { backBtn.style.background = 'rgba(255,255,255,0.06)'; });
+                backBtn.addEventListener('mouseleave', () => { backBtn.style.background = 'transparent'; });
+            } else {
+                frameModal.style.display = 'flex';
+                const spinner = frameModal.querySelector('#apnaFrameSpinner');
+                const iframe = frameModal.querySelector('iframe');
+                if (spinner) spinner.style.display = 'flex';
+                if (iframe) {
+                    iframe.style.opacity = '0';
+                    iframe.src = 'https://clg.codextrms.in/';
+                }
+            }
+            updateUrlState();
+        };
+        window.openApnaCollegeIframe = openApnaCollegeIframe;
 
         // Export restoreUrlState to window so DOMContentLoaded can trigger it
         window.__restoreUrlState = restoreUrlState;
@@ -1614,9 +1688,9 @@ const openBatchModal = (data, title) => {
 
         if (apnaCollegeBatchCard) {
             apnaCollegeBatchCard.addEventListener('click', () => {
-                openBatchModal(window.dataClass11 || [], 'APNA COLLEGE');
+                openApnaCollegeIframe();
             });
-}
+        }
 
         if (chaiaurcodeBatchCard) {
             chaiaurcodeBatchCard.addEventListener('click', () => {
