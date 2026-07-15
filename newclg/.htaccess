@@ -1,0 +1,45 @@
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # NOTE: No RewriteBase needed — Apache infers it from the .htaccess directory.
+  # This means the rules work whether the folder is at the domain root OR inside
+  # a subfolder (e.g. public_html/apna-college/). Do NOT add RewriteBase unless
+  # your host specifically tells you to.
+
+  # Route clean API paths to their PHP scripts.
+  # The JS bundle calls /api/batches, /api/videos, /api/pdfs without .php.
+  RewriteRule ^api/batches/?$  api/batches.php  [L,QSA]
+  RewriteRule ^api/videos/?$   api/videos.php   [L,QSA]
+  RewriteRule ^api/pdfs/?$     api/pdfs.php     [L,QSA]
+
+  # SPA fallback: send every other non-file, non-directory request to index.php
+  # so the wouter router can handle client-side routes like /batch/:id.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+# Safety net when mod_rewrite is unavailable: serve index.php for unknown URLs.
+# The HTTP status will be 404 but the SPA still loads and the wouter router
+# matches the route — so the page displays correctly.
+ErrorDocument 404 /index.php
+
+# Cache hashed assets (JS/CSS) for 1 year; HTML/PHP must always revalidate.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html              "access plus 0 seconds"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css               "access plus 1 year"
+  ExpiresByType image/svg+xml          "access plus 1 year"
+  ExpiresByType image/png              "access plus 1 year"
+  ExpiresByType image/webp             "access plus 1 year"
+  ExpiresByType font/woff2             "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|svg|png|jpg|jpeg|webp|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
