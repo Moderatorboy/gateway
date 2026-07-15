@@ -306,7 +306,7 @@ async function deleteVideoBlob(videoId) {
             return `${STREAM_BASE_API}${channelId}/${fileId}`;
         };
 
-        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 18000;
+        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 120000;
         const VIDEO_STREAM_RETRY_ROUNDS = 2;
 
         const stopVideoStreamFallback = (videoElement) => {
@@ -350,9 +350,7 @@ async function deleteVideoBlob(videoId) {
                 if (videoElement._streamLoadToken !== loadToken || settledSource) return;
                 clearLoadTimer();
                 if (attemptIndex >= maxAttempts) {
-                    videoElement.pause();
-                    showMiniToast('Stream unavailable. Please try again later.');
-                    return;
+                    attemptIndex = 0;
                 }
                 const source = sources[attemptIndex % sources.length];
                 const separator = source.includes('?') ? '&' : '?';
