@@ -3659,25 +3659,16 @@ function timeAgo(timestamp) {
 
 async function saveToDownloads(fileId, title, channelId, type) {
     if (type === 'video') {
-        const videoUrl = buildVideoStreamSources(channelId, fileId)[0];
-        if (videoUrl) {
-            // Open window synchronously to bypass popup blocker
-            window.open(videoUrl, '_blank');
-            
-            // Show custom non-blocking instructions modal
-            const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(26,26,46,0.95);color:#fff;border:1px solid var(--neon-blue,#00f0ff);padding:24px;border-radius:16px;z-index:999999;box-shadow:0 20px 50px rgba(0,240,255,0.25);max-width:320px;text-align:center;font-family:\'Poppins\',sans-serif;backdrop-filter:blur(8px);animation:fadeIn 0.3s ease;';
-            modal.innerHTML = `
-                <div style="font-size:2rem;color:var(--neon-blue,#00f0ff);margin-bottom:12px;"><i class="fas fa-cloud-download-alt"></i></div>
-                <h3 style="margin:0 0 10px 0;font-size:1.1rem;font-weight:700;">Direct Video Download</h3>
-                <p style="margin:0 0 20px 0;font-size:0.85rem;color:#cbd5e1;line-height:1.5;">Direct background download is blocked by browser security. We have opened the video in a new tab.<br><br><strong>Instructions:</strong> Please click the 3-dots options menu in the player controls on the new tab and select <strong>"Download"</strong> to save it!</p>
-                <button id="closeDownloadInstructionBtn" style="background:var(--neon-blue,#00f0ff);color:#000;border:none;padding:8px 24px;border-radius:999px;font-weight:700;font-size:0.85rem;cursor:pointer;box-shadow:0 4px 15px rgba(0,240,255,0.3);">OK, UNDERSTOOD</button>
-            `;
-            document.body.appendChild(modal);
-            modal.querySelector('#closeDownloadInstructionBtn').addEventListener('click', () => {
-                modal.remove();
-            });
-            setTimeout(() => { if (modal.parentNode) modal.remove(); }, 12000);
+        if (channelId && fileId) {
+            showMiniToast('Starting secure direct download...');
+            const cleanTitle = (title || 'video').replace(/[^a-zA-Z0-9]/g, '_');
+            const downloadUrl = `/download/${channelId}/${fileId}/${cleanTitle}.mp4`;
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `${title || 'video'}.mp4`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             return;
         }
         showMiniToast('Error: Video URL not found.');

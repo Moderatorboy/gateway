@@ -3,5 +3,11 @@
     "api/groq-chat-handler.js": {
       "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/download/:channelId/:videoId/:name",
+      "destination": "https://ascii-newspaper-whilst-year.trycloudflare.com/stream/:channelId/:videoId"
+    }
+  ]
 }
