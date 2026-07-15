@@ -821,14 +821,9 @@ async function deleteVideoBlob(videoId) {
             const isVideoOpen = modal && modal.style.display === 'flex';
             const batchModal = document.getElementById('batchDataModal');
             const isBatchOpen = batchModal && batchModal.classList.contains('active');
-            const frameModal = document.getElementById('apnaCollegeFrameModal');
-            const isFrameOpen = frameModal && frameModal.style.display === 'flex';
-
             let url = window.location.pathname;
 
-            if (isFrameOpen) {
-                url += '?batch=dataClass11';
-            } else if (isBatchOpen) {
+            if (isBatchOpen) {
                 const params = new URLSearchParams();
                 if (currentBatchDataKey) params.set('batch', currentBatchDataKey);
                 if (selectedSubjectIndex >= 0) params.set('subject', selectedSubjectIndex);
@@ -859,10 +854,7 @@ async function deleteVideoBlob(videoId) {
 
             if (!batchKey) return;
 
-            if (batchKey === 'dataClass11') {
-                openApnaCollegeIframe();
-                return;
-            }
+
 
             const source = getGatewayBatchSources().find(item => item.dataKey === batchKey);
             if (!source) return;
@@ -1688,7 +1680,7 @@ const openBatchModal = (data, title) => {
 
         if (apnaCollegeBatchCard) {
             apnaCollegeBatchCard.addEventListener('click', () => {
-                openApnaCollegeIframe();
+                openBatchModal(window.dataClass11 || [], 'APNA COLLEGE');
             });
         }
 
