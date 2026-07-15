@@ -95,6 +95,11 @@
 
             <!-- Video -->
             <div class="player-video-wrap" style="position:relative; width:100%; background:#000;">
+                <!-- Video Custom Loading Overlay -->
+                <div id="videoLoaderOverlay" class="video-loader-overlay" style="display: none;">
+                    <div class="video-loader-spinner"></div>
+                    <div class="video-loader-text">Loading secure video stream...</div>
+                </div>
                 <video id="videoPlayer" style="width:100%; display:block; max-height:60vh; object-fit:contain;" playsinline controlsList="nodownload" oncontextmenu="return false;"></video>
                 <div id="tapLeft" style="position:absolute; left:0; top:0; width:35%; height:100%; z-index:5;"></div>
                 <div id="tapRight" style="position:absolute; right:0; top:0; width:35%; height:100%; z-index:5;"></div>

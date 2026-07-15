@@ -2189,6 +2189,8 @@ function openPremiumVideo(videoId, title, chapter) {
         showMiniToast('Video unavailable. Please try again later.');
         return;
     }
+    const loader = document.getElementById('videoLoaderOverlay');
+    if (loader) loader.style.display = 'flex';
     vp.currentTime = 0;
     applyVideoStreamSource(vp, sources);
     const savedProgress = getLectureProgress(videoId);
@@ -2909,6 +2911,22 @@ if (videoCommentInput) videoCommentInput.addEventListener('keydown', (event) => 
         cancelVideoCommentEdit();
     }
 });
+
+const videoLoader = document.getElementById('videoLoaderOverlay');
+const hideVideoLoader = () => {
+    if (videoLoader) videoLoader.style.display = 'none';
+};
+const showVideoLoader = () => {
+    if (videoLoader) videoLoader.style.display = 'flex';
+};
+
+if (vp) {
+    vp.addEventListener('playing', hideVideoLoader);
+    vp.addEventListener('canplay', hideVideoLoader);
+    vp.addEventListener('waiting', showVideoLoader);
+    vp.addEventListener('error', hideVideoLoader);
+    vp.addEventListener('abort', hideVideoLoader);
+}
 })();
 
 
