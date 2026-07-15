@@ -3707,18 +3707,11 @@ async function saveToDownloads(fileId, title, channelId, type) {
         } catch (err) {
             downloadToast.remove();
             
-            // Fallback: Direct Browser Native Download
+            // Fallback: Open stream in new tab with clear user instructions
             const videoUrl = buildVideoStreamSources(channelId, fileId)[0];
             if (videoUrl) {
-                showMiniToast('CORS proxy blocked. Direct browser download starting...');
-                const a = document.createElement('a');
-                a.href = videoUrl;
-                a.target = '_blank';
-                // Trigger download natively
-                a.download = `${title}.mp4`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                alert('Direct background download is blocked by browser security. Opening video in a new tab...\n\nInstructions: Please click the 3-dots (options menu) at the bottom-right corner of the video controls and click "Download" to save it directly to your device!');
+                window.open(videoUrl, '_blank');
                 return;
             }
             alert('Download fail ho gaya: ' + err.message);
