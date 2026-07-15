@@ -3658,6 +3658,32 @@ function timeAgo(timestamp) {
 }
 
 async function saveToDownloads(fileId, title, channelId, type) {
+    if (type === 'video') {
+        const videoUrl = buildVideoStreamSources(channelId, fileId)[0];
+        if (videoUrl) {
+            // Open window synchronously to bypass popup blocker
+            window.open(videoUrl, '_blank');
+            
+            // Show custom non-blocking instructions modal
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(26,26,46,0.95);color:#fff;border:1px solid var(--neon-blue,#00f0ff);padding:24px;border-radius:16px;z-index:999999;box-shadow:0 20px 50px rgba(0,240,255,0.25);max-width:320px;text-align:center;font-family:\'Poppins\',sans-serif;backdrop-filter:blur(8px);animation:fadeIn 0.3s ease;';
+            modal.innerHTML = `
+                <div style="font-size:2rem;color:var(--neon-blue,#00f0ff);margin-bottom:12px;"><i class="fas fa-cloud-download-alt"></i></div>
+                <h3 style="margin:0 0 10px 0;font-size:1.1rem;font-weight:700;">Direct Video Download</h3>
+                <p style="margin:0 0 20px 0;font-size:0.85rem;color:#cbd5e1;line-height:1.5;">Direct background download is blocked by browser security. We have opened the video in a new tab.<br><br><strong>Instructions:</strong> Please click the 3-dots options menu in the player controls on the new tab and select <strong>"Download"</strong> to save it!</p>
+                <button id="closeDownloadInstructionBtn" style="background:var(--neon-blue,#00f0ff);color:#000;border:none;padding:8px 24px;border-radius:999px;font-weight:700;font-size:0.85rem;cursor:pointer;box-shadow:0 4px 15px rgba(0,240,255,0.3);">OK, UNDERSTOOD</button>
+            `;
+            document.body.appendChild(modal);
+            modal.querySelector('#closeDownloadInstructionBtn').addEventListener('click', () => {
+                modal.remove();
+            });
+            setTimeout(() => { if (modal.parentNode) modal.remove(); }, 12000);
+            return;
+        }
+        showMiniToast('Error: Video URL not found.');
+        return;
+    }
+
     const key = 'my_downloads';
     let downloads = readDownloads();
     // Duplicate check
@@ -3666,58 +3692,6 @@ async function saveToDownloads(fileId, title, channelId, type) {
         return;
     }
 
-    if (type === 'video') {
-        const downloadToast = document.createElement('div');
-        downloadToast.id = 'downloadToast';
-        downloadToast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;border:1px solid rgba(255,255,255,0.15);padding:12px 24px;border-radius:12px;font-weight:700;font-size:0.85rem;z-index:999999;box-shadow:0 10px 25px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;';
-        downloadToast.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:var(--neon-blue);"></i> <span>Downloading: 0%</span>`;
-        document.body.appendChild(downloadToast);
-
-        try {
-            const videoUrl = buildVideoStreamSources(channelId, fileId)[0];
-            let response;
-            try {
-                response = await fetch(videoUrl);
-                if (!response.ok) throw new Error('Network error');
-            } catch (fetchErr) {
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(videoUrl)}`;
-                response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error('CORS proxy download error');
-            }
-            
-            const reader = response.body.getReader();
-            const contentLength = +response.headers.get('Content-Length') || 0;
-            let receivedLength = 0;
-            let chunks = [];
-            
-            while(true) {
-                const {done, value} = await reader.read();
-                if (done) break;
-                chunks.push(value);
-                receivedLength += value.length;
-                const percent = contentLength ? Math.round((receivedLength / contentLength) * 100) : 0;
-                downloadToast.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:var(--neon-blue);"></i> <span>Downloading: ${percent}%</span>`;
-            }
-            
-            const blob = new Blob(chunks, { type: 'video/mp4' });
-            const saved = await saveVideoBlob(fileId, blob);
-            downloadToast.remove();
-            
-            if (!saved) throw new Error('Database write error');
-        } catch (err) {
-            downloadToast.remove();
-            
-            // Fallback: Open stream in new tab with clear user instructions
-            const videoUrl = buildVideoStreamSources(channelId, fileId)[0];
-            if (videoUrl) {
-                alert('Direct background download is blocked by browser security. Opening video in a new tab...\n\nInstructions: Please click the 3-dots (options menu) at the bottom-right corner of the video controls and click "Download" to save it directly to your device!');
-                window.open(videoUrl, '_blank');
-                return;
-            }
-            alert('Download fail ho gaya: ' + err.message);
-            return;
-        }
-    }
 
     downloads.unshift({
         fileId, title, channelId, type,
