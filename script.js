@@ -2846,26 +2846,7 @@ document.addEventListener('keydown', (e) => {
     });
 
     document.getElementById('videoBackBtn').addEventListener('click', () => {
-        minimizePremiumVideo();
-        // Only restore batchDataModal if it was open before playing the video
-        const savedState = JSON.parse(localStorage.getItem(GATEWAY_VIEW_STATE_KEY) || 'null');
-        if (savedState && savedState.isOpen) {
-            if (selectedChapter && selectedSubject) {
-                batchDataModal.classList.add('active');
-                overlay.style.display = 'block';
-                renderChapterDetails(selectedChapter, selectedChapterIndex);
-            } else if (selectedSubject) {
-                batchDataModal.classList.add('active');
-                overlay.style.display = 'block';
-                renderChapters(selectedSubject, selectedSubjectIndex);
-            } else if (currentBatchData && currentBatchData.length) {
-                batchDataModal.classList.add('active');
-                overlay.style.display = 'block';
-                renderSubjects(currentBatchData, currentBatchTitle);
-            }
-        } else {
-            overlay.style.display = 'none';
-        }
+        closePremiumVideo();
     });
 
     document.getElementById('attachmentsToggleBtn').addEventListener('click', () => {
@@ -3725,6 +3706,21 @@ async function saveToDownloads(fileId, title, channelId, type) {
             if (!saved) throw new Error('Database write error');
         } catch (err) {
             downloadToast.remove();
+            
+            // Fallback: Direct Browser Native Download
+            const videoUrl = buildVideoStreamSources(channelId, fileId)[0];
+            if (videoUrl) {
+                showMiniToast('CORS proxy blocked. Direct browser download starting...');
+                const a = document.createElement('a');
+                a.href = videoUrl;
+                a.target = '_blank';
+                // Trigger download natively
+                a.download = `${title}.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                return;
+            }
             alert('Download fail ho gaya: ' + err.message);
             return;
         }
