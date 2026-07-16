@@ -821,13 +821,9 @@ async function deleteVideoBlob(videoId) {
             const isVideoOpen = modal && modal.style.display === 'flex';
             const batchModal = document.getElementById('batchDataModal');
             const isBatchOpen = batchModal && batchModal.classList.contains('active');
-            const frameModal = document.getElementById('apnaCollegeFrameModal');
-            const isFrameOpen = frameModal && frameModal.style.display === 'flex';
             let url = window.location.pathname;
 
-            if (isFrameOpen) {
-                url += '?batch=dataClass11';
-            } else if (isBatchOpen) {
+            if (isBatchOpen) {
                 const params = new URLSearchParams();
                 if (currentBatchDataKey) params.set('batch', currentBatchDataKey);
                 if (selectedSubjectIndex >= 0) params.set('subject', selectedSubjectIndex);
@@ -858,10 +854,7 @@ async function deleteVideoBlob(videoId) {
 
             if (!batchKey) return;
 
-            if (batchKey === 'dataClass11') {
-                openApnaCollegeIframe();
-                return;
-            }
+
 
             const source = getGatewayBatchSources().find(item => item.dataKey === batchKey);
             if (!source) return;
@@ -1672,6 +1665,13 @@ const openBatchModal = (data, title) => {
     const source = resolveGatewayBatchSource(data, title);
     currentBatchDataKey = source.dataKey || '';
     currentBatchTitle = source.title || title;
+
+    if (currentBatchTitle === 'APNA COLLEGE') {
+        batchDataModal.classList.add('apna-college-theme');
+    } else {
+        batchDataModal.classList.remove('apna-college-theme');
+    }
+
     subjectSearchTerm = '';
     subjectTab = 'all';
     if (subjectSearchInput) subjectSearchInput.value = '';
@@ -1687,7 +1687,7 @@ const openBatchModal = (data, title) => {
 
         if (apnaCollegeBatchCard) {
             apnaCollegeBatchCard.addEventListener('click', () => {
-                openApnaCollegeIframe();
+                openBatchModal(window.dataClass11 || [], 'APNA COLLEGE');
             });
         }
 
@@ -1785,9 +1785,9 @@ const openBatchModal = (data, title) => {
                     return;
                 }
                 batchDataModal.classList.remove('active');
+                batchDataModal.classList.remove('apna-college-theme');
                 overlay.style.display = 'none';
                 saveGatewayViewState(false);
-                
             });
         }
 
@@ -1836,9 +1836,9 @@ const openBatchModal = (data, title) => {
 
         closeBatchData.addEventListener('click', () => {
             batchDataModal.classList.remove('active');
+            batchDataModal.classList.remove('apna-college-theme');
             overlay.style.display = 'none';
             saveGatewayViewState(false);
-            
         });
 
         // Restore video after refresh

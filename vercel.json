@@ -4,29 +4,10 @@
       "maxDuration": 30
     }
   },
-  "headers": [
-    {
-      "source": "/apna-college-frame/:path*",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "ALLOWALL"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'self' https://gatewayclasses.vercel.app/"
-        }
-      ]
-    }
-  ],
   "rewrites": [
     {
       "source": "/download/:channelId/:videoId/:name",
       "destination": "https://ascii-newspaper-whilst-year.trycloudflare.com/stream/:channelId/:videoId"
-    },
-    {
-      "source": "/apna-college-frame/:path*",
-      "destination": "https://clg.codextrms.in/:path*"
     }
   ]
 }

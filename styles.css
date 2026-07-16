@@ -2353,3 +2353,95 @@ body.telegram-player-mode.telegram-settings-open .telegram-settings-sheet {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
 }
+
+/* Apna College Custom Theme Overrides */
+#batchDataModal.apna-college-theme {
+  border-color: rgba(255, 122, 0, 0.4) !important;
+  box-shadow: 0 0 40px rgba(255, 122, 0, 0.15) !important;
+}
+
+#batchDataModal.apna-college-theme .video-header {
+  background: #1e1208 !important;
+  border-bottom: 1px solid rgba(255, 122, 0, 0.25) !important;
+}
+
+#batchDataModal.apna-college-theme .video-header .video-title {
+  color: #ffaa66 !important;
+  text-shadow: 0 0 10px rgba(255, 122, 0, 0.4) !important;
+}
+
+#batchDataModal.apna-college-theme .video-header .close-video {
+  color: #ffaa66 !important;
+}
+
+#batchDataModal.apna-college-theme .subject-path-strip {
+  background: rgba(255, 122, 0, 0.04) !important;
+  border-bottom: 1px solid rgba(255, 122, 0, 0.1) !important;
+}
+
+#batchDataModal.apna-college-theme .modal-search-input {
+  border-color: rgba(255, 122, 0, 0.2) !important;
+}
+
+#batchDataModal.apna-college-theme .modal-search-input:focus {
+  border-color: #ff7a00 !important;
+  box-shadow: 0 0 8px rgba(255, 122, 0, 0.4) !important;
+}
+
+#batchDataModal.apna-college-theme .batch-btn {
+  background: linear-gradient(45deg, #ff7a00, #ff007a) !important;
+  color: #fff !important;
+}
+
+#batchDataModal.apna-college-theme .modal-back-btn {
+  background: rgba(255, 122, 0, 0.12) !important;
+  border-color: rgba(255, 122, 0, 0.25) !important;
+  color: #ff9944 !important;
+}
+
+#batchDataModal.apna-college-theme #favoriteSubjectsTabBtn,
+#batchDataModal.apna-college-theme #favChaptersTabBtn,
+#batchDataModal.apna-college-theme #studyMaterialTabBtn {
+  background: transparent !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 122, 0, 0.2) !important;
+}
+
+#batchDataModal.apna-college-theme #favoriteSubjectsTabBtn:hover,
+#batchDataModal.apna-college-theme #favChaptersTabBtn:hover,
+#batchDataModal.apna-college-theme #studyMaterialTabBtn:hover {
+  background: rgba(255, 122, 0, 0.08) !important;
+  color: #fff !important;
+}
+
+#batchDataModal.apna-college-theme .gateway-subject-item {
+  background: rgba(255, 122, 0, 0.05) !important;
+  border: 1px solid rgba(255, 122, 0, 0.1) !important;
+}
+
+#batchDataModal.apna-college-theme .gateway-subject-item:hover {
+  border-color: rgba(255, 122, 0, 0.35) !important;
+  box-shadow: 0 0 12px rgba(255, 122, 0, 0.15) !important;
+}
+
+#batchDataModal.apna-college-theme .gateway-subject-item div[style*="background:#ff4d6d"] {
+  background: linear-gradient(90deg, #ff7a00, #ff007a) !important;
+}
+
+#batchDataModal.apna-college-theme .gateway-chapter-item {
+  background: rgba(255, 122, 0, 0.03) !important;
+  border: 1px solid rgba(255, 122, 0, 0.1) !important;
+}
+
+#batchDataModal.apna-college-theme .gateway-chapter-item:hover {
+  border-color: #ff7a00 !important;
+  box-shadow: 0 0 15px rgba(255, 122, 0, 0.25) !important;
+}
+
+#batchDataModal.apna-college-theme .gateway-chapter-item div[style*="color:var(--neon-blue)"] {
+  color: #ff9944 !important;
+}
+
+#batchDataModal.apna-college-theme .gateway-chapter-item div[style*="background:linear-gradient(90deg,var(--neon-blue),var(--neon-pink))"] {
+  background: linear-gradient(90deg, #ff7a00, #ff007a) !important;
+}
