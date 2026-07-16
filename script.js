@@ -306,7 +306,7 @@ async function deleteVideoBlob(videoId) {
             return `${STREAM_BASE_API}${channelId}/${fileId}`;
         };
 
-        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 120000;
+        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 8000;
         const VIDEO_STREAM_RETRY_ROUNDS = 2;
 
         const stopVideoStreamFallback = (videoElement) => {
