@@ -821,9 +821,13 @@ async function deleteVideoBlob(videoId) {
             const isVideoOpen = modal && modal.style.display === 'flex';
             const batchModal = document.getElementById('batchDataModal');
             const isBatchOpen = batchModal && batchModal.classList.contains('active');
+            const frameModal = document.getElementById('apnaCollegeFrameModal');
+            const isFrameOpen = frameModal && frameModal.style.display === 'flex';
             let url = window.location.pathname;
 
-            if (isBatchOpen) {
+            if (isFrameOpen) {
+                url += '?batch=dataClass11';
+            } else if (isBatchOpen) {
                 const params = new URLSearchParams();
                 if (currentBatchDataKey) params.set('batch', currentBatchDataKey);
                 if (selectedSubjectIndex >= 0) params.set('subject', selectedSubjectIndex);
@@ -854,7 +858,10 @@ async function deleteVideoBlob(videoId) {
 
             if (!batchKey) return;
 
-
+            if (batchKey === 'dataClass11') {
+                openApnaCollegeIframe();
+                return;
+            }
 
             const source = getGatewayBatchSources().find(item => item.dataKey === batchKey);
             if (!source) return;
@@ -932,7 +939,7 @@ async function deleteVideoBlob(videoId) {
 
                 // Iframe element
                 const iframe = document.createElement('iframe');
-                iframe.src = '/apna-college-frame/';
+                iframe.src = 'https://clg.codextrms.in/';
                 iframe.style.cssText = 'flex:1;width:100%;height:calc(100% - 60px);border:none;background:#0b0f19;opacity:0;transition:opacity 0.4s ease;';
                 iframe.onload = () => {
                     spinner.style.display = 'none';
@@ -960,7 +967,7 @@ async function deleteVideoBlob(videoId) {
                 if (spinner) spinner.style.display = 'flex';
                 if (iframe) {
                     iframe.style.opacity = '0';
-                    iframe.src = '/apna-college-frame/';
+                    iframe.src = 'https://clg.codextrms.in/';
                 }
             }
             updateUrlState();
@@ -1687,7 +1694,7 @@ const openBatchModal = (data, title) => {
 
         if (apnaCollegeBatchCard) {
             apnaCollegeBatchCard.addEventListener('click', () => {
-                openBatchModal(window.dataClass11 || [], 'APNA COLLEGE');
+                openApnaCollegeIframe();
             });
         }
 

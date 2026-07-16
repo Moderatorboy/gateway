@@ -42,6 +42,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 // header('X-Frame-Options: SAMEORIGIN');
+header("Content-Security-Policy: frame-ancestors 'self' https://gatewayclasses.vercel.app");
 ?><!DOCTYPE html>
 <html lang="en">
   <head>
