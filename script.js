@@ -2343,7 +2343,7 @@ window._timeTracker = setInterval(() => {
 
     buildAttachments(chapter);
     if (window.innerWidth < 821) {
-        setSidebarView('none');
+        setSidebarView('attachments');
     } else {
         setSidebarView('comments');
     }

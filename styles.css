@@ -1815,27 +1815,109 @@ body.telegram-player-mode {
 
 body.telegram-player-mode #videoModal:not(.is-floating) {
   display: flex !important;
-  background: #000 !important;
+  flex-direction: column !important;
+  background: var(--dark-bg) !important;
   overflow: hidden !important;
 }
 
-body.telegram-player-mode #videoModal:not(.is-floating) .player-topbar-white,
-body.telegram-player-mode #videoModal:not(.is-floating) .player-topbar-blue,
-body.telegram-player-mode #videoModal:not(.is-floating) .player-topbar,
-body.telegram-player-mode #videoModal:not(.is-floating) .player-info-panel,
-body.telegram-player-mode #videoModal:not(.is-floating) #attachmentsPanel {
+/* Portrait view: split screen layout (YouTube style) */
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) {
+  flex-direction: column !important;
+  background: var(--dark-bg) !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) .player-topbar-white,
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) .player-topbar {
   display: none !important;
 }
 
-body.telegram-player-mode #videoModal:not(.is-floating) .player-body,
-body.telegram-player-mode #videoModal:not(.is-floating) .player-main {
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) .player-topbar-blue {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  background: #0d1527 !important;
+  height: 52px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) .player-body {
+  display: flex !important;
+  flex-direction: column !important;
+  height: calc(100% - 52px) !important;
+  overflow-y: auto !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) .player-main {
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) .player-video-wrap {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+  flex: 0 0 auto !important;
+  position: relative !important;
+  background: #000 !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) #videoPlayer {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) .player-info-panel {
+  display: block !important;
+  flex: 0 0 auto !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 12px 16px !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) #attachmentsPanel {
+  display: flex !important;
+  width: 100% !important;
+  flex: 1 1 auto !important;
+  min-height: 250px !important;
+  border-left: none !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(10, 15, 26, 0.98) !important;
+  overflow-y: auto !important;
+}
+
+body.telegram-player-mode:not(.telegram-fullscreen-active):not(.telegram-landscape-active) #videoModal:not(.is-floating) #attachmentsPanel.hidden {
+  display: none !important;
+}
+
+/* Fullscreen / Landscape overrides */
+body.telegram-player-mode.telegram-fullscreen-active #videoModal:not(.is-floating) .player-topbar-blue,
+body.telegram-player-mode.telegram-landscape-active #videoModal:not(.is-floating) .player-topbar-blue,
+body.telegram-player-mode.telegram-fullscreen-active #videoModal:not(.is-floating) .player-info-panel,
+body.telegram-player-mode.telegram-landscape-active #videoModal:not(.is-floating) .player-info-panel,
+body.telegram-player-mode.telegram-fullscreen-active #videoModal:not(.is-floating) #attachmentsPanel,
+body.telegram-player-mode.telegram-landscape-active #videoModal:not(.is-floating) #attachmentsPanel {
+  display: none !important;
+}
+
+body.telegram-player-mode.telegram-fullscreen-active #videoModal:not(.is-floating) .player-body,
+body.telegram-player-mode.telegram-landscape-active #videoModal:not(.is-floating) .player-body,
+body.telegram-player-mode.telegram-fullscreen-active #videoModal:not(.is-floating) .player-main,
+body.telegram-player-mode.telegram-landscape-active #videoModal:not(.is-floating) .player-main {
   position: relative !important;
   height: 100% !important;
   max-height: none !important;
   overflow: hidden !important;
 }
 
-body.telegram-player-mode #videoModal:not(.is-floating) .player-video-wrap {
+body.telegram-player-mode.telegram-fullscreen-active #videoModal:not(.is-floating) .player-video-wrap,
+body.telegram-player-mode.telegram-landscape-active #videoModal:not(.is-floating) .player-video-wrap {
   flex: 1 1 auto !important;
   width: 100% !important;
   height: 100% !important;
@@ -1847,16 +1929,15 @@ body.telegram-player-mode #videoModal:not(.is-floating) .player-video-wrap {
   background: #000 !important;
 }
 
-body.telegram-player-mode #videoModal:not(.is-floating) #videoPlayer {
+body.telegram-player-mode.telegram-fullscreen-active #videoModal:not(.is-floating) #videoPlayer,
+body.telegram-player-mode.telegram-landscape-active #videoModal:not(.is-floating) #videoPlayer {
   width: 100% !important;
   height: 100% !important;
   max-height: none !important;
   object-fit: contain !important;
 }
 
-body.telegram-player-mode
-  #videoModal:not(.is-floating)
-  .premium-video-controls {
+body.telegram-player-mode #videoModal:not(.is-floating) .premium-video-controls {
   position: absolute !important;
   left: 0 !important;
   right: 0 !important;
@@ -1868,8 +1949,8 @@ body.telegram-player-mode
   box-shadow: none !important;
   background: linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.78),
-    rgba(0, 0, 0, 0.38) 65%,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0.45) 65%,
     transparent
   ) !important;
 }
@@ -1879,15 +1960,17 @@ body.telegram-player-mode #videoModal:not(.is-floating) .premium-control-row {
   gap: 10px !important;
 }
 
+/* Hide standard desktop spacer / volume on mobile */
+body.telegram-player-mode #videoModal:not(.is-floating) #volumeSlider,
+body.telegram-player-mode #videoModal:not(.is-floating) .premium-control-spacer {
+  display: none !important;
+}
+
 body.telegram-player-mode #videoModal:not(.is-floating) #skipBackBtn,
 body.telegram-player-mode #videoModal:not(.is-floating) #skipFwdBtn,
 body.telegram-player-mode #videoModal:not(.is-floating) #muteBtn,
-body.telegram-player-mode #videoModal:not(.is-floating) #volumeSlider,
-body.telegram-player-mode #videoModal:not(.is-floating) #speedBtn,
-body.telegram-player-mode
-  #videoModal:not(.is-floating)
-  .premium-control-spacer {
-  display: none !important;
+body.telegram-player-mode #videoModal:not(.is-floating) #speedBtn {
+  display: inline-flex !important;
 }
 
 body.telegram-player-mode
