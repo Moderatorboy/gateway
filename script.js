@@ -2548,44 +2548,86 @@ function buildAttachments(chapter) {
     if (tapLeft && tapRight) {
         let leftClicks = 0;
         let leftClickTimer = null;
+        const triggerLeftDoubleTap = () => {
+            vp.currentTime = Math.max(0, vp.currentTime - 10);
+            if (tapFeedbackLeft) {
+                tapFeedbackLeft.style.display = 'flex';
+                setTimeout(() => tapFeedbackLeft.style.display = 'none', 600);
+            }
+        };
+        const triggerSingleTap = () => {
+            if (vp.paused) vp.play().catch(() => {});
+            else vp.pause();
+        };
+
         tapLeft.addEventListener('click', (e) => {
             leftClicks++;
             if (leftClicks === 1) {
                 leftClickTimer = setTimeout(() => {
                     leftClicks = 0;
-                    if (vp.paused) vp.play().catch(() => {});
-                    else vp.pause();
+                    triggerSingleTap();
                 }, 250);
             } else if (leftClicks === 2) {
                 clearTimeout(leftClickTimer);
                 leftClicks = 0;
-                vp.currentTime = Math.max(0, vp.currentTime - 10);
-                if (tapFeedbackLeft) {
-                    tapFeedbackLeft.style.display = 'flex';
-                    setTimeout(() => tapFeedbackLeft.style.display = 'none', 600);
-                }
+                triggerLeftDoubleTap();
             }
+        });
+
+        let lastLeftTouch = 0;
+        tapLeft.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastLeftTouch < 300) {
+                e.preventDefault();
+                clearTimeout(leftClickTimer);
+                leftClicks = 0;
+                triggerLeftDoubleTap();
+            } else {
+                leftClickTimer = setTimeout(() => {
+                    if (leftClicks === 0) triggerSingleTap();
+                }, 250);
+            }
+            lastLeftTouch = now;
         });
 
         let rightClicks = 0;
         let rightClickTimer = null;
+        const triggerRightDoubleTap = () => {
+            vp.currentTime = Math.min(vp.duration || 0, vp.currentTime + 10);
+            if (tapFeedbackRight) {
+                tapFeedbackRight.style.display = 'flex';
+                setTimeout(() => tapFeedbackRight.style.display = 'none', 600);
+            }
+        };
+
         tapRight.addEventListener('click', (e) => {
             rightClicks++;
             if (rightClicks === 1) {
                 rightClickTimer = setTimeout(() => {
                     rightClicks = 0;
-                    if (vp.paused) vp.play().catch(() => {});
-                    else vp.pause();
+                    triggerSingleTap();
                 }, 250);
             } else if (rightClicks === 2) {
                 clearTimeout(rightClickTimer);
                 rightClicks = 0;
-                vp.currentTime = Math.min(vp.duration || 0, vp.currentTime + 10);
-                if (tapFeedbackRight) {
-                    tapFeedbackRight.style.display = 'flex';
-                    setTimeout(() => tapFeedbackRight.style.display = 'none', 600);
-                }
+                triggerRightDoubleTap();
             }
+        });
+
+        let lastRightTouch = 0;
+        tapRight.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastRightTouch < 300) {
+                e.preventDefault();
+                clearTimeout(rightClickTimer);
+                rightClicks = 0;
+                triggerRightDoubleTap();
+            } else {
+                rightClickTimer = setTimeout(() => {
+                    if (rightClicks === 0) triggerSingleTap();
+                }, 250);
+            }
+            lastRightTouch = now;
         });
     }
     const fullscreenBtn = document.getElementById('fullscreenBtn');
