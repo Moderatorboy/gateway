@@ -859,7 +859,7 @@ async function deleteVideoBlob(videoId) {
             if (!batchKey) return;
 
             if (batchKey === 'dataClass11') {
-                openApnaCollegeIframe();
+                window.location.replace('https://clg.codextrms.in/');
                 return;
             }
 
@@ -1688,13 +1688,15 @@ const openBatchModal = (data, title) => {
     saveGatewayViewState(true);
 }
 
-        gatewayBatchCard.addEventListener('click', () => {
-            openBatchModal(window.dataClass13 || [], 'GATEWAY – 1ST YEAR');
-        });
+        if (gatewayBatchCard) {
+            gatewayBatchCard.addEventListener('click', () => {
+                openBatchModal(window.dataClass13 || [], 'GATEWAY – 1ST YEAR');
+            });
+        }
 
         if (apnaCollegeBatchCard) {
             apnaCollegeBatchCard.addEventListener('click', () => {
-                openApnaCollegeIframe();
+                window.location.href = 'https://clg.codextrms.in/';
             });
         }
 
@@ -1841,12 +1843,14 @@ const openBatchModal = (data, title) => {
             });
         }
 
-        closeBatchData.addEventListener('click', () => {
-            batchDataModal.classList.remove('active');
-            batchDataModal.classList.remove('apna-college-theme');
-            overlay.style.display = 'none';
-            saveGatewayViewState(false);
-        });
+        if (closeBatchData) {
+            closeBatchData.addEventListener('click', () => {
+                batchDataModal.classList.remove('active');
+                batchDataModal.classList.remove('apna-college-theme');
+                overlay.style.display = 'none';
+                saveGatewayViewState(false);
+            });
+        }
 
         // Restore video after refresh
 (function restoreLastVideo() {
