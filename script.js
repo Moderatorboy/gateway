@@ -293,7 +293,7 @@ async function deleteVideoBlob(videoId) {
         const buildVideoStreamSources = (channelId, videoId) => {
             if (!channelId || !videoId) return [];
             return STREAM_BASE_API_CANDIDATES.map(
-                (base) => `${base}${channelId}/${videoId}?t=${Date.now()}`,
+                (base) => `${base}${channelId}/${videoId}`,
             );
         };
 
@@ -353,8 +353,11 @@ async function deleteVideoBlob(videoId) {
                     attemptIndex = 0;
                 }
                 const source = sources[attemptIndex % sources.length];
-                const separator = source.includes('?') ? '&' : '?';
-                const playableSource = `${source}${separator}retry=${attemptIndex + 1}-${Date.now()}`;
+                let playableSource = source;
+                if (attemptIndex > 0) {
+                    const separator = source.includes('?') ? '&' : '?';
+                    playableSource = `${source}${separator}retry=${attemptIndex + 1}-${Date.now()}`;
+                }
                 attemptIndex += 1;
                 videoElement.pause();
                 settledSource = false;
@@ -492,7 +495,6 @@ async function deleteVideoBlob(videoId) {
         const getGatewayBatchSources = () => [
             { title: 'GATEWAY – 1ST YEAR', dataKey: 'dataClass13' },
             { title: 'APNA COLLEGE', dataKey: 'dataClass11' },
-            { title: 'DSA', dataKey: 'dataClass17' },
             { title: 'CHAI AUR CODE', dataKey: 'dataClass101' },
             { title: 'CODE WITH HARRY', dataKey: 'dataClass114' },
             { title: 'SUPREME COURSE', dataKey: 'dataClass102' },
@@ -2014,7 +2016,6 @@ function recalculateProgress() {
     const allData = [
         ...(window.dataClass13 || []),
         ...(window.dataClass11 || []),
-        ...(window.dataClass17 || []),
         ...(window.dataClass101 || []),
         ...(window.dataClass114 || []),
         ...(window.dataClass102 || []),
@@ -2272,7 +2273,13 @@ function openPremiumVideo(videoId, title, chapter) {
         return;
     }
     const loader = document.getElementById('videoLoaderOverlay');
-    if (loader) loader.style.display = 'flex';
+    if (loader) {
+        if (window._loaderShowTimeout) clearTimeout(window._loaderShowTimeout);
+        loader.style.display = 'none';
+        window._loaderShowTimeout = setTimeout(() => {
+            loader.style.display = 'flex';
+        }, 300);
+    }
     vp.currentTime = 0;
     applyVideoStreamSource(vp, sources);
     const savedProgress = getLectureProgress(videoId);
@@ -2977,10 +2984,17 @@ if (videoCommentInput) videoCommentInput.addEventListener('keydown', (event) => 
 
 const videoLoader = document.getElementById('videoLoaderOverlay');
 const hideVideoLoader = () => {
+    if (window._loaderShowTimeout) {
+        clearTimeout(window._loaderShowTimeout);
+        window._loaderShowTimeout = null;
+    }
     if (videoLoader) videoLoader.style.display = 'none';
 };
 const showVideoLoader = () => {
-    if (videoLoader) videoLoader.style.display = 'flex';
+    if (window._loaderShowTimeout) clearTimeout(window._loaderShowTimeout);
+    window._loaderShowTimeout = setTimeout(() => {
+        if (videoLoader) videoLoader.style.display = 'flex';
+    }, 300);
 };
 
 if (vp) {
@@ -3908,7 +3922,6 @@ window.showFavoritesModal = showFavoritesModal;
 const ALL_REC_BATCHES = [
   { classId: '13', dataKey: 'dataClass13', title: 'GATEWAY – 1ST YEAR', icon: 'fa-university', color: '#8b5cf6', instructor: 'Engineering Subjects', keywords: ['gateway','physics','math','chemistry','electrical'] },
   { classId: '11', dataKey: 'dataClass11', title: 'APNA COLLEGE', icon: 'fa-code', color: '#22c55e', instructor: 'Shradha Khapra', keywords: ['apna','dsa','web','sigma','programming'] },
-  { classId: '17', dataKey: 'dataClass17', title: 'DSA', icon: 'fa-layer-group', color: '#06b6d4', instructor: 'DSA Team', keywords: ['dsa','algorithms','data structures','coding'] },
   { classId: '101', dataKey: 'dataClass101', title: 'CHAI AUR CODE', icon: 'fa-coffee', color: '#d97706', instructor: 'Hitesh Choudhary', keywords: ['chai','javascript','web','backend','hitesh'] },
   { classId: '102', dataKey: 'dataClass102', title: 'SUPREME COURSE', icon: 'fa-trophy', color: '#fbbf24', instructor: 'Love Babbar', keywords: ['supreme','dsa','competitive','babbar'] },
   { classId: '103', dataKey: 'dataClass103', title: 'WEDDING MASTERY', icon: 'fa-film', color: '#f43f5e', instructor: 'Raja Awasthi', keywords: ['wedding','photo','video','cinema'] },
