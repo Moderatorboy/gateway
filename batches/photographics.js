@@ -1,4 +1,4 @@
-const dataClass01 = [
+window.dataClass01 = [
   {
     "batch_name": "PHOTOGRAPICS",
     "channel_id": "-1002934518635",

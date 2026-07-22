@@ -558,7 +558,7 @@ async function deleteVideoBlob(videoId) {
                 dataClass15: 'image/jasonfedin.jpg',
                 dataClass202: 'image/gw.jpg',
                 dataClass201: 'image/EARNERS.jpg',
-                dataClass201: 'image/photographics.jpg',
+                dataClass01: 'image/photographics.jpg',
             };
             return imageMap[dataKey] || '';
         };
@@ -2015,30 +2015,7 @@ function recalculateProgress() {
     if (!progressPercent || !mainProgress) return;
 
     const completed = JSON.parse(localStorage.getItem('completed_lectures') || '[]');
-    const allData = [
-        ...(window.dataClass13 || []),
-        ...(window.dataClass11 || []),
-        ...(window.dataClass101 || []),
-        ...(window.dataClass114 || []),
-        ...(window.dataClass102 || []),
-        ...(window.dataClass103 || []),
-        ...(window.dataClass104 || []),
-        ...(window.dataClass105 || []),
-        ...(window.dataClass106 || []),
-        ...(window.dataClass107 || []),
-        ...(window.dataClass108 || []),
-        ...(window.dataClass109 || []),
-        ...(window.dataClass110 || []),
-        ...(window.dataClass111 || []),
-        ...(window.dataClass112 || []),
-        ...(window.dataClass113 || []),
-        ...(window.dataClass14 || []),
-        ...(window.dataClass15 || []),
-        ...(window.dataClass115 || []),
-        ...(window.dataClass116 || []),
-        ...(window.dataClass201 || []),
-        ...(window.dataClass202 || []),
-    ];
+    const allData = getGatewayBatchSources().flatMap(src => window[src.dataKey] || []);
 
     let totalLec = 0;
     allData.forEach(batch => {
@@ -3691,21 +3668,10 @@ function timeAgo(timestamp) {
     const favSubjects = JSON.parse(localStorage.getItem('gateway_favorite_subjects') || '[]');
     const favChapters = JSON.parse(localStorage.getItem('gateway_favorite_chapters') || '[]');
 
-    // Sab batches ka data
-    const allBatches = [
-        { title: 'GATEWAY – 1ST YEAR', data: window.dataClass13 || [] },
-        { title: 'APNA COLLEGE', data: window.dataClass11 || [] },
-        { title: 'CHAI AUR CODE', data: window.dataClass101 || [] },
-        { title: 'CODE WITH HARRY', data: window.dataClass114 || [] },
-        { title: 'SUPREME COURSE', data: window.dataClass102 || [] },
-        { title: 'PW SKILLS', data: window.dataClass105 || [] },
-        { title: 'UDEMY', data: window.dataClass108 || [] },
-        { title: 'TRADING', data: window.dataClass109 || [] },
-        { title: 'DevOps', data: window.dataClass110 || [] },
-        { title: 'HARKIRAT COHORT', data: window.dataClass111 || [] },
-        { title: 'Campus', data: window.dataClass113 || [] },
-        { title: 'INEURON', data: window.dataClass116 || [] },
-    ];
+    const allBatches = getGatewayBatchSources().map(src => ({
+        title: src.title,
+        data: window[src.dataKey] || []
+    }));
 
     allBatches.forEach((batch) => {
         const source = resolveGatewayBatchSource(batch.data, batch.title);
