@@ -350,13 +350,7 @@ async function deleteVideoBlob(videoId) {
                 if (videoElement._streamLoadToken !== loadToken || settledSource) return;
                 clearLoadTimer();
                 if (attemptIndex >= maxAttempts) {
-                    stopVideoStreamFallback(videoElement);
-                    if (typeof showMiniToast === 'function') {
-                        showMiniToast('Video unavailable. Please check the channel.');
-                    }
-                    const loader = document.getElementById('videoLoaderOverlay');
-                    if (loader) loader.style.display = 'none';
-                    return;
+                    attemptIndex = 0;
                 }
                 const source = sources[attemptIndex % sources.length];
                 let playableSource = source;
@@ -521,7 +515,6 @@ async function deleteVideoBlob(videoId) {
             { title: 'ADCA', dataKey: 'dataClass115' },
             { title: 'EARNERS', dataKey: 'dataClass201' },
             { title: 'GATEWAY – 3RD SEM', dataKey: 'dataClass202' },
-            { title: 'PHOTOGRAPHICS', dataKey: 'dataClass01' },
         ];
 
         const resolveGatewayBatchSource = (data, title = '') => {
@@ -564,7 +557,6 @@ async function deleteVideoBlob(videoId) {
                 dataClass15: 'image/jasonfedin.jpg',
                 dataClass202: 'image/gw.jpg',
                 dataClass201: 'image/EARNERS.jpg',
-                dataClass01: 'image/photographics.jpg',
             };
             return imageMap[dataKey] || '';
         };
@@ -2021,7 +2013,30 @@ function recalculateProgress() {
     if (!progressPercent || !mainProgress) return;
 
     const completed = JSON.parse(localStorage.getItem('completed_lectures') || '[]');
-    const allData = getGatewayBatchSources().flatMap(src => window[src.dataKey] || []);
+    const allData = [
+        ...(window.dataClass13 || []),
+        ...(window.dataClass11 || []),
+        ...(window.dataClass101 || []),
+        ...(window.dataClass114 || []),
+        ...(window.dataClass102 || []),
+        ...(window.dataClass103 || []),
+        ...(window.dataClass104 || []),
+        ...(window.dataClass105 || []),
+        ...(window.dataClass106 || []),
+        ...(window.dataClass107 || []),
+        ...(window.dataClass108 || []),
+        ...(window.dataClass109 || []),
+        ...(window.dataClass110 || []),
+        ...(window.dataClass111 || []),
+        ...(window.dataClass112 || []),
+        ...(window.dataClass113 || []),
+        ...(window.dataClass14 || []),
+        ...(window.dataClass15 || []),
+        ...(window.dataClass115 || []),
+        ...(window.dataClass116 || []),
+        ...(window.dataClass201 || []),
+        ...(window.dataClass202 || []),
+    ];
 
     let totalLec = 0;
     allData.forEach(batch => {
@@ -3674,10 +3689,21 @@ function timeAgo(timestamp) {
     const favSubjects = JSON.parse(localStorage.getItem('gateway_favorite_subjects') || '[]');
     const favChapters = JSON.parse(localStorage.getItem('gateway_favorite_chapters') || '[]');
 
-    const allBatches = getGatewayBatchSources().map(src => ({
-        title: src.title,
-        data: window[src.dataKey] || []
-    }));
+    // Sab batches ka data
+    const allBatches = [
+        { title: 'GATEWAY – 1ST YEAR', data: window.dataClass13 || [] },
+        { title: 'APNA COLLEGE', data: window.dataClass11 || [] },
+        { title: 'CHAI AUR CODE', data: window.dataClass101 || [] },
+        { title: 'CODE WITH HARRY', data: window.dataClass114 || [] },
+        { title: 'SUPREME COURSE', data: window.dataClass102 || [] },
+        { title: 'PW SKILLS', data: window.dataClass105 || [] },
+        { title: 'UDEMY', data: window.dataClass108 || [] },
+        { title: 'TRADING', data: window.dataClass109 || [] },
+        { title: 'DevOps', data: window.dataClass110 || [] },
+        { title: 'HARKIRAT COHORT', data: window.dataClass111 || [] },
+        { title: 'Campus', data: window.dataClass113 || [] },
+        { title: 'INEURON', data: window.dataClass116 || [] },
+    ];
 
     allBatches.forEach((batch) => {
         const source = resolveGatewayBatchSource(batch.data, batch.title);
@@ -3957,7 +3983,6 @@ const ALL_REC_BATCHES = [
   { classId: '14', dataKey: 'dataClass14', title: 'DROPSHIPPING', icon: 'fa-store', color: '#f59e0b', instructor: 'Vivek Bindra', keywords: ['dropshipping','business','store','sales'] },
   { classId: '15', dataKey: 'dataClass15', title: 'JASON FEDIN', icon: 'fa-c', color: '#64748b', instructor: 'Jason Fedin', keywords: ['c','programming','beginners'] },
   { classId: '201', dataKey: 'dataClass201', title: 'EARNERS', icon: 'fa-mobile-screen-button', color: '#db2777', instructor: 'Earners Team', keywords: ['editing','ai','youtube','instagram','design'] },
-  { classId: '01', dataKey: 'dataClass01', title: 'PHOTOGRAPHICS', icon: 'fa-camera', color: '#06b6d4', instructor: 'Photographics Team', keywords: ['photography','editing','photo','camera','design'] },
   { classId: '202', dataKey: 'dataClass202', title: 'GATEWAY - 3RD SEM', icon: 'fa-university', color: '#7c3aed', instructor: 'Engineering Subjects', keywords: ['gateway','aktu','third semester','engineering'] },
 ];
 
@@ -3971,7 +3996,6 @@ const INTEREST_MAP = {
   'python':  ['116','114'],
   'devops':  ['110','111'],
   'trading': ['109'],
-  'photographics': ['01'],
   'ml':      ['116','105'],
 };
 
