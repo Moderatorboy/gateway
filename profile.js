@@ -201,6 +201,7 @@ function pfGetAllOptions() {
     { id: "115", name: "ADCA", key: "dataClass115" },
     { id: "116", name: "INEURON", key: "dataClass116" },
     { id: "117", name: "B4U", key: "dataClass117" },
+    { id: "01", name: "PHOTOGRAPICS", key: "dataClass01" },
   ];
 
   const options = [];
