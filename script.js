@@ -350,7 +350,13 @@ async function deleteVideoBlob(videoId) {
                 if (videoElement._streamLoadToken !== loadToken || settledSource) return;
                 clearLoadTimer();
                 if (attemptIndex >= maxAttempts) {
-                    attemptIndex = 0;
+                    stopVideoStreamFallback(videoElement);
+                    if (typeof showMiniToast === 'function') {
+                        showMiniToast('Video unavailable. Please check the channel.');
+                    }
+                    const loader = document.getElementById('videoLoaderOverlay');
+                    if (loader) loader.style.display = 'none';
+                    return;
                 }
                 const source = sources[attemptIndex % sources.length];
                 let playableSource = source;
