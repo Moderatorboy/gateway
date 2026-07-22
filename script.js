@@ -515,6 +515,7 @@ async function deleteVideoBlob(videoId) {
             { title: 'ADCA', dataKey: 'dataClass115' },
             { title: 'EARNERS', dataKey: 'dataClass201' },
             { title: 'GATEWAY – 3RD SEM', dataKey: 'dataClass202' },
+            { title: 'PHOTOGRAPHICS', dataKey: 'dataClass01' },
         ];
 
         const resolveGatewayBatchSource = (data, title = '') => {
@@ -557,6 +558,7 @@ async function deleteVideoBlob(videoId) {
                 dataClass15: 'image/jasonfedin.jpg',
                 dataClass202: 'image/gw.jpg',
                 dataClass201: 'image/EARNERS.jpg',
+                dataClass201: 'image/photographics.jpg',
             };
             return imageMap[dataKey] || '';
         };
@@ -3983,6 +3985,7 @@ const ALL_REC_BATCHES = [
   { classId: '14', dataKey: 'dataClass14', title: 'DROPSHIPPING', icon: 'fa-store', color: '#f59e0b', instructor: 'Vivek Bindra', keywords: ['dropshipping','business','store','sales'] },
   { classId: '15', dataKey: 'dataClass15', title: 'JASON FEDIN', icon: 'fa-c', color: '#64748b', instructor: 'Jason Fedin', keywords: ['c','programming','beginners'] },
   { classId: '201', dataKey: 'dataClass201', title: 'EARNERS', icon: 'fa-mobile-screen-button', color: '#db2777', instructor: 'Earners Team', keywords: ['editing','ai','youtube','instagram','design'] },
+  { classId: '01', dataKey: 'dataClass01', title: 'PHOTOGRAPHICS', icon: 'fa-camera', color: '#06b6d4', instructor: 'Photographics Team', keywords: ['photography','editing','photo','camera','design'] },
   { classId: '202', dataKey: 'dataClass202', title: 'GATEWAY - 3RD SEM', icon: 'fa-university', color: '#7c3aed', instructor: 'Engineering Subjects', keywords: ['gateway','aktu','third semester','engineering'] },
 ];
 
@@ -3996,6 +3999,7 @@ const INTEREST_MAP = {
   'python':  ['116','114'],
   'devops':  ['110','111'],
   'trading': ['109'],
+  'photographics': ['01'],
   'ml':      ['116','105'],
 };
 
