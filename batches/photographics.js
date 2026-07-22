@@ -1,10 +1,10 @@
 const dataClass100 = [
   {
-    "batch_name": "JRF ADDA",
+    "batch_name": "PHOTOGRAPICS",
     "channel_id": "-1002934518635",
     "chapters": [
       {
-        "chapter_name": "Chapter 1",
+        "chapter_name": "Chapter 01",
         "lectures": [
           {
             "title": "1 Way to Succeed in Photography What you will learn from this course",
