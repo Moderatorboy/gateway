@@ -393,9 +393,9 @@
 
     <script>
       const BASE_API =
-        "https://ascii-newspaper-whilst-year.trycloudflare.com/stream";
+        "Stream.codextrms.in/stream";
       const STREAM_API_CANDIDATES = [
-        "https://ascii-newspaper-whilst-year.trycloudflare.com/stream/",
+        "Stream.codextrms.in/stream/",
       ];
       const params = new URLSearchParams(window.location.search);
       const title = params.get("title") || "PDF Notes";
@@ -414,7 +414,7 @@
 
       if (pdfUrl) {
         pdfUrl = pdfUrl.replace(
-          "https://ascii-newspaper-whilst-year.trycloudflare.com/stream/",
+          "Stream.codextrms.in/stream/",
           BASE_API + "/",
         );
       }
