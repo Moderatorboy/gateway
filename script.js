@@ -284,7 +284,7 @@ async function deleteVideoBlob(videoId) {
 
         const LAST_ACTIVE_SECTION_KEY = 'codextrms_last_active_section';
         const STREAM_BASE_API_CANDIDATES = [
-            'https://ascii-newspaper-whilst-year.trycloudflare.com/stream/',
+            'Stream.codextrms.in/stream/',
         ];
         const STREAM_BASE_API = STREAM_BASE_API_CANDIDATES[0];
         const GATEWAY_FAVORITE_SUBJECTS_KEY = 'gateway_favorite_subjects';
@@ -298,8 +298,8 @@ async function deleteVideoBlob(videoId) {
         };
 
         const normalizeStreamUrl = (url = '') => String(url || '')
-            .replace('https://ascii-newspaper-whilst-year.trycloudflare.com/stream/', STREAM_BASE_API)
-            .replace('https://ascii-newspaper-whilst-year.trycloudflare.com/stream/', STREAM_BASE_API);
+            .replace('Stream.codextrms.in/stream/', STREAM_BASE_API)
+            .replace('Stream.codextrms.in/stream/', STREAM_BASE_API);
 
         const buildPdfUrl = (channelId, fileId) => {
             if (!channelId || !fileId) return '';
@@ -3062,7 +3062,7 @@ async function fetchContinueDuration(videoId, channelId) {
     }
 
     try {
-        const res = await fetch(`https://ascii-newspaper-whilst-year.trycloudflare.com/stream/${channelId}/${videoId}/duration`, { cache: 'no-store' });
+        const res = await fetch(`Stream.codextrms.in/stream/${channelId}/${videoId}/duration`, { cache: 'no-store' });
         if (res.ok) {
             const data = await res.json();
             const secs = Math.floor(data.duration || data.length || data.seconds || 0);
