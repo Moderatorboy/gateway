@@ -310,8 +310,31 @@ async function deleteVideoBlob(videoId) {
             return `${STREAM_BASE_API}${channelId}/${fileId}`;
         };
 
-        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 8000;
+        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 6000;
         const VIDEO_STREAM_RETRY_ROUNDS = 2;
+
+        const showVideoStreamError = (videoElement, sources) => {
+            const loader = document.getElementById('videoLoaderOverlay');
+            if (!loader) return;
+            const text = loader.querySelector('.video-loader-text');
+            if (text) text.textContent = 'Video load nahi ho paayi. Connection check karke retry karein.';
+
+            let retryButton = loader.querySelector('[data-video-retry]');
+            if (!retryButton) {
+                retryButton = document.createElement('button');
+                retryButton.type = 'button';
+                retryButton.dataset.videoRetry = 'true';
+                retryButton.textContent = 'Retry';
+                retryButton.style.cssText = 'margin-top:12px;padding:8px 16px;border:0;border-radius:999px;background:var(--neon-blue);color:#07111f;font-weight:700;cursor:pointer;';
+                loader.appendChild(retryButton);
+            }
+            retryButton.onclick = () => {
+                retryButton.remove();
+                if (text) text.textContent = 'Loading secure video stream...';
+                applyVideoStreamSource(videoElement, sources);
+            };
+            loader.style.display = 'flex';
+        };
 
         const stopVideoStreamFallback = (videoElement) => {
             if (!videoElement) return;
@@ -329,6 +352,12 @@ async function deleteVideoBlob(videoId) {
 
         const applyVideoStreamSource = (videoElement, sources) => {
             if (!videoElement || !sources || !sources.length) return;
+            const loader = document.getElementById('videoLoaderOverlay');
+            if (loader) {
+                loader.querySelector('[data-video-retry]')?.remove();
+                const loaderText = loader.querySelector('.video-loader-text');
+                if (loaderText) loaderText.textContent = 'Loading secure video stream...';
+            }
             stopVideoStreamFallback(videoElement);
 
             const loadToken = Symbol('stream-load');
@@ -354,7 +383,17 @@ async function deleteVideoBlob(videoId) {
                 if (videoElement._streamLoadToken !== loadToken || settledSource) return;
                 clearLoadTimer();
                 if (attemptIndex >= maxAttempts) {
-                    attemptIndex = 0;
+                    clearLoadTimer();
+                    videoElement.pause();
+                    videoElement.removeAttribute('src');
+                    videoElement.load();
+                    videoElement.onerror = null;
+                    videoElement.onloadedmetadata = null;
+                    videoElement.oncanplay = null;
+                    videoElement.onplaying = null;
+                    videoElement.onstalled = null;
+                    showVideoStreamError(videoElement, sources);
+                    return;
                 }
                 const source = sources[attemptIndex % sources.length];
                 let playableSource = source;
@@ -2279,6 +2318,9 @@ function openPremiumVideo(videoId, title, chapter) {
     const loader = document.getElementById('videoLoaderOverlay');
     if (loader) {
         if (window._loaderShowTimeout) clearTimeout(window._loaderShowTimeout);
+        loader.querySelector('[data-video-retry]')?.remove();
+        const loaderText = loader.querySelector('.video-loader-text');
+        if (loaderText) loaderText.textContent = 'Loading secure video stream...';
         loader.style.display = 'none';
         window._loaderShowTimeout = setTimeout(() => {
             loader.style.display = 'flex';
