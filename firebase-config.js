@@ -3,7 +3,10 @@
 ═══════════════════════════════════════════════════════ */
 
 // ⚠️ YAHAN APNA VPS DOMAIN/IP DAALO
-const NOTIF_SERVER = "https://notif.yourdomain.in";
+// The remote API is optional. Polling a placeholder host creates repeated failed
+// requests on slower phones, which can make the interface feel frozen.
+const NOTIF_SERVER = window.CODEXTRMS_NOTIFICATION_SERVER || "";
+const hasNotificationServer = /^https:\/\//i.test(NOTIF_SERVER);
 
 const LAST_SEEN_KEY = "notif_last_seen";
 const NOTIF_CACHE_KEY = "notif_cache";
@@ -45,6 +48,7 @@ const messaging = typeof firebase !== "undefined" && typeof firebase.messaging =
 
 /* ─── NOTIFICATIONS SERVER SE FETCH (with retry) ─────── */
 async function fetchNotificationsFromServer(retries = 2) {
+  if (!hasNotificationServer) return;
   try {
     const res = await fetch(`${NOTIF_SERVER}/get-notifications?limit=20`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -244,6 +248,7 @@ function playNotifSound() {
 function showInAppBanner(title, body, clickAction = null) {
   const old = document.getElementById("fcm-banner");
   if (old) old.remove();
+  document.getElementById("fcm-banner-style")?.remove();
 
   const banner = document.createElement("div");
   banner.id = "fcm-banner";
@@ -268,6 +273,7 @@ function showInAppBanner(title, body, clickAction = null) {
 
   // Safe internal UI rendering to prevent XSS string scripts
   const styleBlock = document.createElement("style");
+  styleBlock.id = "fcm-banner-style";
   styleBlock.textContent = `
     @keyframes fcmSlideDown {
         from { opacity:0; transform: translateX(-50%) translateY(-20px); }
@@ -305,6 +311,7 @@ function showInAppBanner(title, body, clickAction = null) {
   closeBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     banner.remove();
+    styleBlock.remove();
   });
 
   banner.appendChild(iconDiv);
@@ -319,6 +326,7 @@ function showInAppBanner(title, body, clickAction = null) {
       if (notificationIcon) notificationIcon.click();
     }
     banner.remove();
+    styleBlock.remove();
   });
 
   document.body.appendChild(banner);
@@ -328,14 +336,17 @@ function showInAppBanner(title, body, clickAction = null) {
     if (b) {
       b.style.opacity = "0";
       b.style.transition = "opacity 0.4s";
-      setTimeout(() => b.remove(), 400);
+      setTimeout(() => {
+        b.remove();
+        styleBlock.remove();
+      }, 400);
     }
   }, 5000);
 }
 
 /* ─── FCM TOKEN ──────────────────────────────────────── */
 async function requestNotificationPermission() {
-  if (!messaging) return;
+  if (!messaging || typeof Notification === "undefined") return;
   try {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") return;
@@ -357,6 +368,7 @@ async function requestNotificationPermission() {
 }
 
 async function saveTokenToServer(token) {
+  if (!hasNotificationServer) return;
   try {
     await fetch(`${NOTIF_SERVER}/save-token`, {
       method: "POST",
@@ -374,7 +386,7 @@ async function saveTokenToServer(token) {
 
 /* ─── TOKEN REFRESH DETECTION ─────────────────────────── */
 function checkAndRefreshToken() {
-  if (Notification.permission !== "granted" || !messaging) return;
+  if (typeof Notification === "undefined" || Notification.permission !== "granted" || !messaging) return;
 
   navigator.serviceWorker.ready.then((swReg) => {
     messaging
@@ -429,6 +441,8 @@ function showFCMToast(msg) {
 
 /* ─── PERMISSION PROMPT ──────────────────────────────── */
 function showPermissionPrompt() {
+  if (!messaging || typeof Notification === "undefined") return;
+  if (document.getElementById("fcm-permission-prompt")) return;
   localStorage.setItem("fcm_permission_asked", "true");
 
   const prompt = document.createElement("div");
@@ -442,7 +456,9 @@ function showPermissionPrompt() {
         box-shadow:0 8px 32px rgba(0,0,0,0.5);
     `;
 
+  document.getElementById("fcm-permission-prompt-style")?.remove();
   const styleBlock = document.createElement("style");
+  styleBlock.id = "fcm-permission-prompt-style";
   styleBlock.textContent = `
     @keyframes fcmSlideUp {
         from{opacity:0;transform:translateX(-50%) translateY(20px)}
@@ -475,9 +491,11 @@ function showPermissionPrompt() {
   document.getElementById("fcm-allow-btn").addEventListener("click", () => {
     requestNotificationPermission();
     prompt.remove();
+    styleBlock.remove();
   });
   document.getElementById("fcm-deny-btn").addEventListener("click", () => {
     prompt.remove();
+    styleBlock.remove();
   });
 }
 
@@ -505,17 +523,8 @@ document.addEventListener("visibilitychange", () => {
 
 /* ─── INIT ───────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
-  const notifIcon = document.getElementById("notificationIcon");
-  if (notifIcon) {
-    notifIcon.addEventListener("click", () => {
-      const cached = JSON.parse(localStorage.getItem(NOTIF_CACHE_KEY) || "[]");
-      if (cached.length) {
-        notificationsDB_latest = cached[0].time;
-        localStorage.setItem(LAST_SEEN_KEY, cached[0].time.toString());
-      }
-      onNotificationPanelOpen();
-    });
-  }
+  // script.js owns opening/closing the panel and the backdrop.
+  document.addEventListener("codextrms:notifications-opened", onNotificationPanelOpen);
 
   if (!document.hidden) {
     startSmartPolling();
@@ -523,10 +532,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setTimeout(() => {
     const alreadyAsked = localStorage.getItem("fcm_permission_asked");
-    if (!alreadyAsked && Notification.permission === "default") {
+    if (!alreadyAsked && typeof Notification !== "undefined" && Notification.permission === "default") {
       showPermissionPrompt();
     }
-    if (Notification.permission === "granted") {
+    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
       checkAndRefreshToken();
     }
   }, 3000);

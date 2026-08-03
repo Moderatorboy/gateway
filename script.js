@@ -209,20 +209,29 @@ async function deleteVideoBlob(videoId) {
         };
         renderNotifications();
         
-        // Notification Panel Toggle
-        notificationIcon.addEventListener('click', () => {
-            notificationsPanel.classList.toggle('open');
-            overlay.style.display = 'block';
-            swipeArea.style.display = 'block';
-            markNotificationsSeen();
-        });
+        // Keep the panel and backdrop in the same state. The old code enabled the
+        // backdrop even when a second tap closed the panel, blocking the screen.
+        const setNotificationsPanelOpen = (open) => {
+            if (!notificationsPanel || !overlay || !swipeArea) return;
+            notificationsPanel.classList.toggle('open', open);
+            notificationsPanel.setAttribute('aria-hidden', String(!open));
+            overlay.style.display = open ? 'block' : 'none';
+            swipeArea.style.display = open ? 'block' : 'none';
+            if (open) {
+                markNotificationsSeen();
+                document.dispatchEvent(new CustomEvent('codextrms:notifications-opened'));
+            }
+        };
 
-        closeNotifications.addEventListener('click', () => {
-            notificationsPanel.classList.remove('open');
-            overlay.style.display = 'none';
-            swipeArea.style.display = 'none';
-            markNotificationsSeen();
-        });
+        if (notificationIcon) {
+            notificationIcon.addEventListener('click', () => {
+                setNotificationsPanelOpen(!notificationsPanel.classList.contains('open'));
+            });
+        }
+
+        if (closeNotifications) {
+            closeNotifications.addEventListener('click', () => setNotificationsPanelOpen(false));
+        }
 
         // Theme Toggle
         themeToggleBtn.addEventListener('click', () => {
@@ -248,10 +257,7 @@ async function deleteVideoBlob(videoId) {
         const playerNotificationIcon = document.getElementById('playerNotificationIcon');
         if (playerNotificationIcon) {
             playerNotificationIcon.addEventListener('click', () => {
-                notificationsPanel.classList.toggle('open');
-                overlay.style.display = 'block';
-                swipeArea.style.display = 'block';
-                markNotificationsSeen();
+                setNotificationsPanelOpen(!notificationsPanel.classList.contains('open'));
             });
         }
 
@@ -283,10 +289,8 @@ async function deleteVideoBlob(videoId) {
         }
 
         const LAST_ACTIVE_SECTION_KEY = 'codextrms_last_active_section';
-        const STREAM_BASE_API_CANDIDATES = [
-            'Stream.codextrms.in/stream/',
-        ];
-        const STREAM_BASE_API = STREAM_BASE_API_CANDIDATES[0];
+        const STREAM_BASE_API = 'https://stream.codextrms.in/stream/';
+        const STREAM_BASE_API_CANDIDATES = [STREAM_BASE_API];
         const GATEWAY_FAVORITE_SUBJECTS_KEY = 'gateway_favorite_subjects';
         const GATEWAY_VIEW_STATE_KEY = 'codextrms_gateway_view_state';
 
@@ -298,8 +302,8 @@ async function deleteVideoBlob(videoId) {
         };
 
         const normalizeStreamUrl = (url = '') => String(url || '')
-            .replace('Stream.codextrms.in/stream/', STREAM_BASE_API)
-            .replace('Stream.codextrms.in/stream/', STREAM_BASE_API);
+            .replace(/https?:\/\/stream\.codextrms\.in\/stream\//i, STREAM_BASE_API)
+            .replace(/stream\.codextrms\.in\/stream\//i, STREAM_BASE_API);
 
         const buildPdfUrl = (channelId, fileId) => {
             if (!channelId || !fileId) return '';
@@ -3062,7 +3066,7 @@ async function fetchContinueDuration(videoId, channelId) {
     }
 
     try {
-        const res = await fetch(`Stream.codextrms.in/stream/${channelId}/${videoId}/duration`, { cache: 'no-store' });
+        const res = await fetch(`${STREAM_BASE_API}${channelId}/${videoId}/duration`, { cache: 'no-store' });
         if (res.ok) {
             const data = await res.json();
             const secs = Math.floor(data.duration || data.length || data.seconds || 0);
