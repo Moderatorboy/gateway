@@ -290,15 +290,23 @@ async function deleteVideoBlob(videoId) {
 
         const LAST_ACTIVE_SECTION_KEY = 'codextrms_last_active_section';
         const STREAM_BASE_API = 'https://stream.codextrms.in/stream/';
-        const STREAM_BASE_API_CANDIDATES = [STREAM_BASE_API];
+        const STREAM_TICKET_ENDPOINT = `${new URL(STREAM_BASE_API).origin}/api/stream-ticket`;
         const GATEWAY_FAVORITE_SUBJECTS_KEY = 'gateway_favorite_subjects';
         const GATEWAY_VIEW_STATE_KEY = 'codextrms_gateway_view_state';
 
-        const buildVideoStreamSources = (channelId, videoId) => {
-            if (!channelId || !videoId) return [];
-            return STREAM_BASE_API_CANDIDATES.map(
-                (base) => `${base}${channelId}/${videoId}`,
-            );
+        const requestVideoStreamSources = async (channelId, videoId) => {
+            if (!channelId || !videoId) throw new Error('Video details unavailable.');
+            const response = await fetch(STREAM_TICKET_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channelId: String(channelId), videoId: String(videoId) }),
+                cache: 'no-store',
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || !payload.streamUrl) {
+                throw new Error(payload.error || 'Secure video access unavailable.');
+            }
+            return [payload.streamUrl];
         };
 
         const normalizeStreamUrl = (url = '') => String(url || '')
@@ -313,11 +321,11 @@ async function deleteVideoBlob(videoId) {
         const VIDEO_STREAM_LOAD_TIMEOUT_MS = 6000;
         const VIDEO_STREAM_RETRY_ROUNDS = 2;
 
-        const showVideoStreamError = (videoElement, sources) => {
+        const showVideoStreamError = (videoElement, sources, message, retryAction) => {
             const loader = document.getElementById('videoLoaderOverlay');
             if (!loader) return;
             const text = loader.querySelector('.video-loader-text');
-            if (text) text.textContent = 'Video load nahi ho paayi. Connection check karke retry karein.';
+            if (text) text.textContent = message || 'Video load nahi ho paayi. Connection check karke retry karein.';
 
             let retryButton = loader.querySelector('[data-video-retry]');
             if (!retryButton) {
@@ -331,7 +339,8 @@ async function deleteVideoBlob(videoId) {
             retryButton.onclick = () => {
                 retryButton.remove();
                 if (text) text.textContent = 'Loading secure video stream...';
-                applyVideoStreamSource(videoElement, sources);
+                if (typeof retryAction === 'function') retryAction();
+                else applyVideoStreamSource(videoElement, sources);
             };
             loader.style.display = 'flex';
         };
@@ -343,6 +352,7 @@ async function deleteVideoBlob(videoId) {
                 videoElement._streamLoadTimer = null;
             }
             videoElement._streamLoadToken = Symbol('stopped-stream-load');
+            videoElement._isStreamLoading = false;
             videoElement.onerror = null;
             videoElement.onloadedmetadata = null;
             videoElement.oncanplay = null;
@@ -365,6 +375,7 @@ async function deleteVideoBlob(videoId) {
             let attemptIndex = 0;
             let settledSource = false;
             videoElement._streamLoadToken = loadToken;
+            videoElement._isStreamLoading = true;
 
             const clearLoadTimer = () => {
                 if (videoElement._streamLoadTimer) {
@@ -376,6 +387,7 @@ async function deleteVideoBlob(videoId) {
             const markSourceReady = () => {
                 if (videoElement._streamLoadToken !== loadToken) return;
                 settledSource = true;
+                videoElement._isStreamLoading = false;
                 clearLoadTimer();
             };
 
@@ -384,6 +396,7 @@ async function deleteVideoBlob(videoId) {
                 clearLoadTimer();
                 if (attemptIndex >= maxAttempts) {
                     clearLoadTimer();
+                    videoElement._isStreamLoading = false;
                     videoElement.pause();
                     videoElement.removeAttribute('src');
                     videoElement.load();
@@ -425,6 +438,16 @@ async function deleteVideoBlob(videoId) {
                 }
             };
             trySource();
+        };
+
+        const loadSecureVideo = async (videoElement, channelId, videoId) => {
+            try {
+                const sources = await requestVideoStreamSources(channelId, videoId);
+                applyVideoStreamSource(videoElement, sources);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : 'Secure video access unavailable.';
+                showVideoStreamError(videoElement, [], message, () => loadSecureVideo(videoElement, channelId, videoId));
+            }
         };
 
         const setActiveSection = (sectionId) => {
@@ -1898,7 +1921,7 @@ const openBatchModal = (data, title) => {
         }
 
         // Restore video after refresh
-(function restoreLastVideo() {
+(async function restoreLastVideo() {
     try {
         if (window.location.search && window.location.search.includes('batch=')) return;
         const saved = JSON.parse(sessionStorage.getItem('last_video') || 'null');
@@ -1948,12 +1971,7 @@ const openBatchModal = (data, title) => {
         const quoteEl = document.getElementById('videoQuote');
         if (quoteEl) quoteEl.innerHTML = `"${q.text}"<br><span style="font-size:0.8rem; color:var(--neon-blue); display:block; margin-top:6px;">— ${q.author}</span>`;
 
-        const sources = buildVideoStreamSources(saved.channelId, saved.videoId);
-        if (!sources.length) {
-            showMiniToast('Video unavailable. Please try again later.');
-            return;
-        }
-        applyVideoStreamSource(vp, sources);
+        await loadSecureVideo(vp, saved.channelId, saved.videoId);
 
         // Time restore - seek after metadata loads
         const savedTime = saved.currentTime || 0;
@@ -2278,7 +2296,7 @@ localStorage.setItem = function(key, value) {
     { text: "Dreams don't work unless you do.", author: "John C. Maxwell" },
 ];
 
-function openPremiumVideo(videoId, title, chapter) {
+async function openPremiumVideo(videoId, title, chapter) {
     syncAppViewportHeight();
     const modal = document.getElementById('videoModal');
     const vp = document.getElementById('videoPlayer');
@@ -2310,11 +2328,6 @@ function openPremiumVideo(videoId, title, chapter) {
         quoteEl.innerHTML = `"${q.text}"<br><span style="font-size:0.8rem; color:var(--neon-blue); display:block; margin-top:6px;">— ${q.author}</span>`;
     }
 
-    const sources = buildVideoStreamSources(selectedChannelId, videoId);
-    if (!sources.length) {
-        showMiniToast('Video unavailable. Please try again later.');
-        return;
-    }
     const loader = document.getElementById('videoLoaderOverlay');
     if (loader) {
         if (window._loaderShowTimeout) clearTimeout(window._loaderShowTimeout);
@@ -2327,7 +2340,7 @@ function openPremiumVideo(videoId, title, chapter) {
         }, 300);
     }
     vp.currentTime = 0;
-    applyVideoStreamSource(vp, sources);
+    await loadSecureVideo(vp, selectedChannelId, videoId);
     const savedProgress = getLectureProgress(videoId);
         if (savedProgress && savedProgress.currentTime > 5) {
         vp.addEventListener('loadedmetadata', () => {
@@ -3089,7 +3102,15 @@ if (vp) {
     vp.addEventListener('playing', hideVideoLoader);
     vp.addEventListener('canplay', hideVideoLoader);
     vp.addEventListener('waiting', showVideoLoader);
-    vp.addEventListener('error', hideVideoLoader);
+    // The stream fallback owns errors while it is trying another source. Hiding
+    // the overlay here caused a blank player until the user touched Play again.
+    vp.addEventListener('error', () => {
+        if (vp._isStreamLoading) {
+            showVideoLoader();
+            return;
+        }
+        hideVideoLoader();
+    });
     vp.addEventListener('abort', hideVideoLoader);
 }
 })();
@@ -3107,42 +3128,8 @@ async function fetchContinueDuration(videoId, channelId) {
         return;
     }
 
-    try {
-        const res = await fetch(`${STREAM_BASE_API}${channelId}/${videoId}/duration`, { cache: 'no-store' });
-        if (res.ok) {
-            const data = await res.json();
-            const secs = Math.floor(data.duration || data.length || data.seconds || 0);
-            if (secs && isFinite(secs)) {
-                const formatted = fmtTime(secs);
-                const c2 = getVidDurCache();
-                c2[videoId] = { d: formatted, t: now };
-                saveVidDurCache(c2);
-                const elNow = document.getElementById(`cw-dur-${videoId}`);
-                if (elNow) elNow.textContent = formatted;
-                return;
-            }
-        }
-    } catch {}
-
-    const tempVid = document.createElement('video');
-    tempVid.preload = 'metadata';
-    tempVid.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;';
-    document.body.appendChild(tempVid);
-    tempVid.src = `${STREAM_BASE_API}${channelId}/${videoId}`;
-    tempVid.onloadedmetadata = () => {
-        const secs = Math.floor(tempVid.duration);
-        tempVid.src = '';
-        tempVid.remove();
-        if (!secs || !isFinite(secs)) return;
-
-        const formatted = fmtTime(secs);
-        const c2 = getVidDurCache();
-        c2[videoId] = { d: formatted, t: now };
-        saveVidDurCache(c2);
-        const elNow = document.getElementById(`cw-dur-${videoId}`);
-        if (elNow) elNow.textContent = formatted;
-    };
-    tempVid.onerror = () => tempVid.remove();
+    // Do not make anonymous metadata requests: every stream URL now requires
+    // a short-lived authenticated ticket. Duration is cached after playback.
 }
 
 function findLectureContext(videoId, channelId = '') {
@@ -3703,12 +3690,23 @@ function readDownloads() {
 }
 
 
-function openPdfViewer(url, title = 'PDF') {
+async function openPdfViewer(url, title = 'PDF') {
     if (!url) {
         showMiniToast('PDF link missing hai.');
         return;
     }
-    const viewerUrl = `pdf.html?url=${encodeURIComponent(normalizeStreamUrl(url))}&title=${encodeURIComponent(title || 'PDF')}`;
+    let protectedUrl = normalizeStreamUrl(url);
+    try {
+        const parsedUrl = new URL(protectedUrl);
+        const streamMatch = parsedUrl.pathname.match(/^\/stream\/([^/]+)\/([^/]+)$/);
+        if (parsedUrl.origin === new URL(STREAM_BASE_API).origin && streamMatch && !parsedUrl.searchParams.has('ticket')) {
+            [protectedUrl] = await requestVideoStreamSources(streamMatch[1], streamMatch[2]);
+        }
+    } catch (error) {
+        showMiniToast(error instanceof Error ? error.message : 'PDF access unavailable.');
+        return;
+    }
+    const viewerUrl = `pdf.html?url=${encodeURIComponent(protectedUrl)}&title=${encodeURIComponent(title || 'PDF')}`;
     const opened = isTelegramWebView() ? null : window.open(viewerUrl, '_blank');
     if (!opened) window.location.href = viewerUrl;
 }
@@ -4168,37 +4166,8 @@ function fetchDurationAndShow(videoId, channelId) {
     return;
   }
 
-  // Hidden video element se metadata fetch karo
-  const tempVid = document.createElement('video');
-  tempVid.preload = 'metadata';
-  tempVid.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;';
-  document.body.appendChild(tempVid);
-  
-  tempVid.src = `${STREAM_BASE_API}${channelId}/${videoId}`;
-
-  tempVid.onloadedmetadata = () => {
-    const secs = Math.floor(tempVid.duration);
-    tempVid.src = '';
-    tempVid.remove();
-
-    if (secs && isFinite(secs) && secs > 0) {
-      const formatted = fmtTime(secs);
-      // Save to cache permanently (30 days)
-      const c2 = getVidDurCache();
-      c2[videoId] = { d: formatted, t: now };
-      saveVidDurCache(c2);
-
-      const elNow = document.getElementById(`dur-${videoId}`);
-      if (elNow) {
-        elNow.textContent = formatted;
-        elNow.style.opacity = '1';
-        elNow.style.color = 'var(--neon-blue)';
-      }
-    }
-    tempVid.remove();
-  };
-
-  tempVid.onerror = () => tempVid.remove();
+  // Anonymous metadata probes would bypass the protected-ticket design. The
+  // player records duration after an authenticated playback instead.
 }
 
 // Video player keyboard shortcut controls
