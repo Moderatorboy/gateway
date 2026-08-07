@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/download/:channelId/:videoId/:name",
-      "destination": "https://ascii-newspaper-whilst-year.trycloudflare.com/stream/:channelId/:videoId"
+      "destination": "https://stream.codextrms.in/stream/:channelId/:videoId"
     }
   ]
 }

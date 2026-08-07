@@ -3843,14 +3843,28 @@ async function saveToDownloads(fileId, title, channelId, type) {
     if (type === 'video') {
         if (channelId && fileId) {
             showMiniToast('Starting secure direct download...');
-            const cleanTitle = (title || 'video').replace(/[^a-zA-Z0-9]/g, '_');
-            const downloadUrl = `/download/${channelId}/${fileId}/${cleanTitle}.mp4`;
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = `${title || 'video'}.mp4`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            try {
+                const response = await fetch('https://stream.codextrms.in/api/stream-ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ channelId: String(channelId), videoId: String(fileId) }),
+                    cache: 'no-store',
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok || !payload.streamUrl) {
+                    throw new Error(payload.error || 'Secure download access unavailable.');
+                }
+                const downloadUrl = `${payload.streamUrl}&d=true`;
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `${title || 'video'}.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (err) {
+                console.error('Download ticket request failed:', err);
+                showMiniToast(err.message || 'Error initializing secure download.');
+            }
             return;
         }
         showMiniToast('Error: Video URL not found.');
