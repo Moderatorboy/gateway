@@ -898,5 +898,643 @@ window.dataClass114 = [
         "dpps": []
       }
     ],
+  },
+  {
+    "batch_name": "Python Batch",
+    "channel_id": "-1003637459451",
+    "chapters": [
+      {
+        "chapter_name": "Chapter 01",
+        "lectures": [
+          {
+            "title": "Lecture 01",
+            "video_id": 11623,
+          },
+          {
+            "title": "Lecture 02",
+            "video_id": 11625,
+          },
+          {
+            "title": "Lecture 03",
+            "video_id": 11627,
+          },
+          {
+            "title": "Lecture 04",
+            "video_id": 11629,
+          },
+          {
+            "title": "01. Introduction to Programming - English [Auto]",
+            "notes_id": 11624,
+            "notes_title": "01. Introduction to Programming - English [Auto]"
+          },
+          {
+            "title": "02. Installing Python and VS Code - English [Auto]",
+            "notes_id": 11626,
+            "notes_title": "02. Installing Python and VS Code - English [Auto]"
+          },
+          {
+            "title": "03. Writing Our First Python Program - English [Auto]",
+            "notes_id": 11628,
+            "notes_title": "03. Writing Our First Python Program - English [Auto]"
+          },
+          {
+            "title": "04. Understanding the Python Syntax - English [Auto]",
+            "notes_id": 11630,
+            "notes_title": "04. Understanding the Python Syntax - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "02. Python Fundamentals",
+        "lectures": [
+          {
+            "title": "Lecture 05",
+            "video_id": 11648,
+          },
+          {
+            "title": "Lecture 06",
+            "video_id": 11650,
+          },
+          {
+            "title": "Lecture 07",
+            "video_id": 11652,
+          },
+          {
+            "title": "Lecture 08",
+            "video_id": 11654,
+          },
+          {
+            "title": "Lecture 09",
+            "video_id": 11656,
+          },
+          {
+            "title": "Python-Fundamentals",
+            "notes_id": 11647,
+            "notes_title": "Python-Fundamentals"
+          },
+          {
+            "title": "01. Variables and Data Types in Python - English [Auto]",
+            "notes_id": 11649,
+            "notes_title": "01. Variables and Data Types in Python - English [Auto]"
+          },
+          {
+            "title": "02. Typecasting in Python - English [Auto]",
+            "notes_id": 11651,
+            "notes_title": "02. Typecasting in Python - English [Auto]"
+          },
+          {
+            "title": "03. Taking User Input in Python - English [Auto]",
+            "notes_id": 11653,
+            "notes_title": "03. Taking User Input in Python - English [Auto]"
+          },
+          {
+            "title": "04_Comments,_Escape_Sequences_&_Print_Statement_English_Auto",
+            "notes_id": 11655,
+            "notes_title": "04_Comments,_Escape_Sequences_&_Print_Statement_English_Auto"
+          },
+          {
+            "title": "05. Operators in Python - English [Auto]",
+            "notes_id": 11657,
+            "notes_title": "05. Operators in Python - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "03. Control Flow and Loops",
+        "lectures": [
+          {
+            "title": "Lecture 10",
+            "video_id": 11660,
+          },
+          {
+            "title": "Lecture 11",
+            "video_id": 11663,
+          },
+          {
+            "title": "Lecture 12",
+            "video_id": 11665,
+          },
+          {
+            "title": "Lecture 13",
+            "video_id": 11667,
+          },
+          {
+            "title": "Lecture 14",
+            "video_id": 11669,
+          },
+          {
+            "title": "Lecture 15",
+            "video_id": 11672,
+          },
+          {
+            "title": "Lecture 16",
+            "video_id": 11675,
+          },
+          {
+            "title": "Lecture 17",
+            "video_id": 11678,
+          },
+          {
+            "title": "Lecture 18",
+            "video_id": 11680,
+          },
+          {
+            "title": "01. If-Else Conditional Statements - English [Auto]",
+            "notes_id": 11661,
+            "notes_title": "01. If-Else Conditional Statements - English [Auto]"
+          },
+          {
+            "title": "02. Match Case Statements in Python - English [Auto]",
+            "notes_id": 11662,
+            "notes_title": "02. Match Case Statements in Python - English [Auto]"
+          },
+          {
+            "title": "03. For Loops in Python - English [Auto]",
+            "notes_id": 11664,
+            "notes_title": "03. For Loops in Python - English [Auto]"
+          },
+          {
+            "title": "04. While Loops in Python - English [Auto]",
+            "notes_id": 11666,
+            "notes_title": "04. While Loops in Python - English [Auto]"
+          },
+          {
+            "title": "05. Break, Continue, and Pass Statements - English [Auto]",
+            "notes_id": 11668,
+            "notes_title": "05. Break, Continue, and Pass Statements - English [Auto]"
+          },
+          {
+            "title": "01. Strings in Python - English [Auto]",
+            "notes_id": 11673,
+            "notes_title": "01. Strings in Python - English [Auto]"
+          },
+          {
+            "title": "02. String Slicing and Indexing - English [Auto]",
+            "notes_id": 11674,
+            "notes_title": "02. String Slicing and Indexing - English [Auto]"
+          },
+          {
+            "title": "03. String Methods and Functions - English [Auto]",
+            "notes_id": 11676,
+            "notes_title": "03. String Methods and Functions - English [Auto]"
+          },
+          {
+            "title": "04. String Formatting and f-Strings - English [Auto]",
+            "notes_id": 11679,
+            "notes_title": "04. String Formatting and f-Strings - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "05. Functions and Modules",
+        "lectures": [
+          {
+            "title": "Lecture 19",
+            "video_id": 11684,
+          },
+          {
+            "title": "Lecture 20",
+            "video_id": 11686,
+          },
+          {
+            "title": "Lecture 21",
+            "video_id": 11688,
+          },
+          {
+            "title": "Lecture 22",
+            "video_id": 11690,
+          },
+          {
+            "title": "Lecture 23",
+            "video_id": 11692,
+          },
+          {
+            "title": "Lecture 24",
+            "video_id": 11694,
+          },
+          {
+            "title": "01. Defining Functions in Python - English [Auto]",
+            "notes_id": 11683,
+            "notes_title": "01. Defining Functions in Python - English [Auto]"
+          },
+          {
+            "title": "02. Function Arguments & Return Values - English [Auto]",
+            "notes_id": 11685,
+            "notes_title": "02. Function Arguments & Return Values - English [Auto]"
+          },
+          {
+            "title": "03. Lambda Functions in Python - English [Auto]",
+            "notes_id": 11687,
+            "notes_title": "03. Lambda Functions in Python - English [Auto]"
+          },
+          {
+            "title": "04. Recursion in Python - English [Auto]",
+            "notes_id": 11689,
+            "notes_title": "04. Recursion in Python - English [Auto]"
+          },
+          {
+            "title": "05_Modules_and_Pip_Using_External_Libraries_English_Auto",
+            "notes_id": 11691,
+            "notes_title": "05_Modules_and_Pip_Using_External_Libraries_English_Auto"
+          },
+          {
+            "title": "06. Variable Scope and Docstrings - English [Auto]",
+            "notes_id": 11693,
+            "notes_title": "06. Variable Scope and Docstrings - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "06. Data Structures in Python",
+        "lectures": [
+          {
+            "title": "Lecture 25",
+            "video_id": 11697,
+          },
+          {
+            "title": "Lecture 26",
+            "video_id": 11699,
+          },
+          {
+            "title": "Lecture 27",
+            "video_id": 11701,
+          },
+          {
+            "title": "Lecture 28",
+            "video_id": 11703,
+          },
+          {
+            "title": "Lecture 29",
+            "video_id": 11705,
+          },
+          {
+            "title": "01. Introduction to Lists - English [Auto]",
+            "notes_id": 11696,
+            "notes_title": "01. Introduction to Lists - English [Auto]"
+          },
+          {
+            "title": "02. List Methods - English [Auto]",
+            "notes_id": 11698,
+            "notes_title": "02. List Methods - English [Auto]"
+          },
+          {
+            "title": "03. Tuples and Operations on Tuples - English [Auto]",
+            "notes_id": 11700,
+            "notes_title": "03. Tuples and Operations on Tuples - English [Auto]"
+          },
+          {
+            "title": "04. Sets and Set Methods - English [Auto]",
+            "notes_id": 11702,
+            "notes_title": "04. Sets and Set Methods - English [Auto]"
+          },
+          {
+            "title": "05. Dictionaries and Dictionary Methods - English [Auto]",
+            "notes_id": 11704,
+            "notes_title": "05. Dictionaries and Dictionary Methods - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "07. Object-Oriented Programming (OOP) in Python",
+        "lectures": [
+          {
+            "title": "Lecture 30",
+            "video_id": 11708,
+          },
+          {
+            "title": "Lecture 31",
+            "video_id": 11710,
+          },
+          {
+            "title": "Lecture 32",
+            "video_id": 11712,
+          },
+          {
+            "title": "Lecture 33",
+            "video_id": 11714,
+          },
+          {
+            "title": "Lecture 34",
+            "video_id": 11716,
+          },
+          {
+            "title": "Lecture 35",
+            "video_id": 11718,
+          },
+          {
+            "title": "01. Introduction to OOP - English [Auto]",
+            "notes_id": 11707,
+            "notes_title": "01. Introduction to OOP - English [Auto]"
+          },
+          {
+            "title": "02. Classes and Objects in Python - English [Auto]",
+            "notes_id": 11709,
+            "notes_title": "02. Classes and Objects in Python - English [Auto]"
+          },
+          {
+            "title": "03. Constructors in Python - English [Auto]",
+            "notes_id": 11711,
+            "notes_title": "03. Constructors in Python - English [Auto]"
+          },
+          {
+            "title": "04. Instance and class attributes - English [Auto]",
+            "notes_id": 11713,
+            "notes_title": "04. Instance and class attributes - English [Auto]"
+          },
+          {
+            "title": "05. Inheritance and Polymorphism - English [Auto]",
+            "notes_id": 11715,
+            "notes_title": "05. Inheritance and Polymorphism - English [Auto]"
+          },
+          {
+            "title": "06_Method_Overriding_and_Operator_Overloading_English_Auto",
+            "notes_id": 11717,
+            "notes_title": "06_Method_Overriding_and_Operator_Overloading_English_Auto"
+          }
+        ]
+      },
+      {
+        "chapter_name": "08. Advanced Python Concepts",
+        "lectures": [
+          {
+            "title": "Lecture 36",
+            "video_id": 11721,
+          },
+          {
+            "title": "Lecture 37",
+            "video_id": 11723,
+          },
+          {
+            "title": "Lecture 38",
+            "video_id": 11725,
+          },
+          {
+            "title": "Lecture 39",
+            "video_id": 11727,
+          },
+          {
+            "title": "Lecture 40",
+            "video_id": 11729,
+          },
+          {
+            "title": "Lecture 41",
+            "video_id": 11731,
+          },
+          {
+            "title": "Lecture 42",
+            "video_id": 11733,
+          },
+          {
+            "title": "Lecture 43",
+            "video_id": 11735,
+          },
+          {
+            "title": "01. Decorators in Python - English [Auto]",
+            "notes_id": 11720,
+            "notes_title": "01. Decorators in Python - English [Auto]"
+          },
+          {
+            "title": "02. Getters and Setters - English [Auto]",
+            "notes_id": 11722,
+            "notes_title": "02. Getters and Setters - English [Auto]"
+          },
+          {
+            "title": "03. Static & Class Methods - English [Auto]",
+            "notes_id": 11724,
+            "notes_title": "03. Static & Class Methods - English [Auto]"
+          },
+          {
+            "title": "04. MagicDunder Methods - English [Auto]",
+            "notes_id": 11726,
+            "notes_title": "04. MagicDunder Methods - English [Auto]"
+          },
+          {
+            "title": "05. Exception Handling and Custom Errors - English [Auto]",
+            "notes_id": 11728,
+            "notes_title": "05. Exception Handling and Custom Errors - English [Auto]"
+          },
+          {
+            "title": "06. Map filter and reduce - English [Auto]",
+            "notes_id": 11730,
+            "notes_title": "06. Map filter and reduce - English [Auto]"
+          },
+          {
+            "title": "07. Walrus operator - English [Auto]",
+            "notes_id": 11732,
+            "notes_title": "07. Walrus operator - English [Auto]"
+          },
+          {
+            "title": "08. Args and kwargs - English [Auto]",
+            "notes_id": 11734,
+            "notes_title": "08. Args and kwargs - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "09. File IO - Working with Files & Related Modules",
+        "lectures": [
+          {
+            "title": "Lecture 44",
+            "video_id": 11738,
+          },
+          {
+            "title": "Lecture 45",
+            "video_id": 11740,
+          },
+          {
+            "title": "Lecture 46",
+            "video_id": 11742,
+          },
+          {
+            "title": "Lecture 47",
+            "video_id": 11744,
+          },
+          {
+            "title": "01. File IO in Python - English [Auto]",
+            "notes_id": 11737,
+            "notes_title": "01. File IO in Python - English [Auto]"
+          },
+          {
+            "title": "02. Read, Write, and Append Files - English [Auto]",
+            "notes_id": 11739,
+            "notes_title": "02. Read, Write, and Append Files - English [Auto]"
+          },
+          {
+            "title": "03. OS and Shutil Modules in Python - English [Auto]",
+            "notes_id": 11741,
+            "notes_title": "03. OS and Shutil Modules in Python - English [Auto]"
+          },
+          {
+            "title": "04. Creating Command Line Utilities - English [Auto]",
+            "notes_id": 11743,
+            "notes_title": "04. Creating Command Line Utilities - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "10. Working with External Libraries",
+        "lectures": [
+          {
+            "title": "Lecture 48",
+            "video_id": 11747,
+          },
+          {
+            "title": "Lecture 49",
+            "video_id": 11749,
+          },
+          {
+            "title": "Lecture 50",
+            "video_id": 11751,
+          },
+          {
+            "title": "Lecture 51",
+            "video_id": 11753,
+          },
+          {
+            "title": "01_Virtual_Environments_&_Package_Management_English_Auto",
+            "notes_id": 11746,
+            "notes_title": "01_Virtual_Environments_&_Package_Management_English_Auto"
+          },
+          {
+            "title": "02. Requests Module - Working with APIs - English [Auto]",
+            "notes_id": 11748,
+            "notes_title": "02. Requests Module - Working with APIs - English [Auto]"
+          },
+          {
+            "title": "03. Regular Expressions in Python - English [Auto]",
+            "notes_id": 11750,
+            "notes_title": "03. Regular Expressions in Python - English [Auto]"
+          },
+          {
+            "title": "04. Multithreading in Python - English [Auto]",
+            "notes_id": 11752,
+            "notes_title": "04. Multithreading in Python - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "11. Using AI as a developer",
+        "lectures": [
+          {
+            "title": "Lecture 52",
+            "video_id": 11756,
+          },
+          {
+            "title": "Lecture 53",
+            "video_id": 11758,
+          },
+          {
+            "title": "Lecture 54",
+            "video_id": 11760,
+          },
+          {
+            "title": "Lecture 55",
+            "video_id": 11762,
+          },
+          {
+            "title": "01. When and how to use AI - English [Auto]",
+            "notes_id": 11755,
+            "notes_title": "01. When and how to use AI - English [Auto]"
+          },
+          {
+            "title": "02. ChatGPT – The optimal way to use it - English [Auto]",
+            "notes_id": 11757,
+            "notes_title": "02. ChatGPT – The optimal way to use it - English [Auto]"
+          },
+          {
+            "title": "03_Github_Copilot,_Cursor_AI_&_Llama_coder_English_Auto",
+            "notes_id": 11759,
+            "notes_title": "03_Github_Copilot,_Cursor_AI_&_Llama_coder_English_Auto"
+          },
+          {
+            "title": "04. Working with LLM APIs - English [Auto]",
+            "notes_id": 11761,
+            "notes_title": "04. Working with LLM APIs - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "12. Hands-On Python Projects",
+        "lectures": [
+          {
+            "title": "Lecture 56",
+            "video_id": 11765,
+          },
+          {
+            "title": "Lecture 57",
+            "video_id": 11767,
+          },
+          {
+            "title": "Lecture 58",
+            "video_id": 11769,
+          },
+          {
+            "title": "Lecture 59",
+            "video_id": 11771,
+          },
+          {
+            "title": "Lecture 60",
+            "video_id": 11773,
+          },
+          {
+            "title": "Lecture 61",
+            "video_id": 11775,
+          },
+          {
+            "title": "01. Build a Simple Calculator - English [Auto]",
+            "notes_id": 11764,
+            "notes_title": "01. Build a Simple Calculator - English [Auto]"
+          },
+          {
+            "title": "02. Who wants to be a Millionaire Game - English [Auto]",
+            "notes_id": 11766,
+            "notes_title": "02. Who wants to be a Millionaire Game - English [Auto]"
+          },
+          {
+            "title": "03. PDFMerger Merge PDFs using Python - English [Auto]",
+            "notes_id": 11768,
+            "notes_title": "03. PDFMerger Merge PDFs using Python - English [Auto]"
+          },
+          {
+            "title": "04. Build a News App Using APIs - English [Auto]",
+            "notes_id": 11770,
+            "notes_title": "04. Build a News App Using APIs - English [Auto]"
+          },
+          {
+            "title": "05. Build a Drink Water Reminder App - English [Auto]",
+            "notes_id": 11772,
+            "notes_title": "05. Build a Drink Water Reminder App - English [Auto]"
+          },
+          {
+            "title": "06. Build an AI Powered Virtual Assistant - English [Auto]",
+            "notes_id": 11774,
+            "notes_title": "06. Build an AI Powered Virtual Assistant - English [Auto]"
+          }
+        ]
+      },
+      {
+        "chapter_name": "13. Conclusion and Next Steps",
+        "lectures": [
+          {
+            "title": "Lecture 62",
+            "video_id": 11778,
+          },
+          {
+            "title": "Lecture 63",
+            "video_id": 11780,
+          },
+          {
+            "title": "01. Course Summary & What’s Next - English [Auto]",
+            "notes_id": 11777,
+            "notes_title": "01. Course Summary & What’s Next - English [Auto]"
+          },
+          {
+            "title": "02. Resources and Career Guidance - English [Auto]",
+            "notes_id": 11779,
+            "notes_title": "02. Resources and Career Guidance - English [Auto]"
+          }
+        ]
+      }
+    ]
   }
 ];
