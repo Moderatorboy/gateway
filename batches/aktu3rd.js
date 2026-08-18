@@ -38,7 +38,7 @@ window.dataClass202 = [
           { lec_no: "L-14", title: "UNIT 01 PART 01", video_id: 1899 },
           { lec_no: "L-15", title: "UNIT 01 PART 02", video_id: 1900, notes_id: 1901 },
           { lec_no: "L-16", title: "UNIT 02", video_id: 1902, notes_id: 1903 },
-          { lec_no: "L-17", title: "UNIT 03", video_id: 1904, notes_id: 1905 },
+          { lec_no: "L-17", title: "UNIT 03", video_id: 2264, notes_id: 1905 },
           { lec_no: "L-18", title: "UNIT 04", video_id: 1906 },
           { lec_no: "L-19", title: "UNIT 05", video_id: 1907, notes_id: 1908 }
         ],
