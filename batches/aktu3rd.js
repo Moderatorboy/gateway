@@ -10,32 +10,27 @@ window.dataClass202 = [
           {
             lec_no: "L-01",
             title: "LECTURE 01",
-            notes_id: 1879,
+            video_id: 1879,
           },
           {
             lec_no: "L-02",
             title: "LECTURE 02",
-            notes_id: 1880,
+            video_id: 1880,
           },
           {
             lec_no: "L-03",
             title: "LECTURE 03",
-            notes_id: 1881,
+            video_id: 1881,
           },
           {
             lec_no: "L-04",
             title: "LECTURE 04",
-            notes_id: 1882,
+            video_id: 1882,
           },
           {
             lec_no: "L-05",
             title: "LECTURE 05",
-            notes_id: 1883,
-          },
-          {
-            lec_no: "L-06",
-            title: "LECTURE 06",
-            notes_id: 1884,
+            video_id: 1884,
           },
         ],
       },
