@@ -7,241 +7,76 @@ window.dataClass202 = [
       {
         chapter_name: "DATA STRUCTURE UNIT-1",
         lectures: [
-          {
-            lec_no: "L-01",
-            title: "LECTURE 01",
-            video_id: 1879,
-          },
-          {
-            lec_no: "L-02",
-            title: "LECTURE 02",
-            video_id: 1880,
-          },
-          {
-            lec_no: "L-03",
-            title: "LECTURE 03",
-            video_id: 1881,
-          },
-          {
-            lec_no: "L-04",
-            title: "LECTURE 04",
-            video_id: 1882,
-          },
-          {
-            lec_no: "L-05",
-            title: "LECTURE 05",
-            video_id: 1884,
-          },
-        ],
+          { lec_no: "L-01", title: "LECTURE 01", video_id: 1879 },
+          { lec_no: "L-02", title: "LECTURE 02", video_id: 1880 },
+          { lec_no: "L-03", title: "LECTURE 03", video_id: 1881 },
+          { lec_no: "L-04", title: "LECTURE 04", video_id: 1882 },
+          { lec_no: "L-05", title: "LECTURE 05", video_id: 1884 }
+        ]
       },
       {
         chapter_name: "DATA STRUCTURE UNIT-2",
         lectures: [
-          {
-            lec_no: "L-07",
-            title: "STACKS AND QUEUES IN ONE SHOT PART01",
-            notes_id: 1885,
-          },
-          {
-            lec_no: "L-08",
-            title: "STACKS AND QUEUES IN ONE SHOT PART02",
-            notes_id: 1886,
-          }
-        ],
+          // Note: Yahan video_id add karein agar video file hai
+          { lec_no: "L-07", title: "STACKS AND QUEUES IN ONE SHOT PART01", video_id: 1885, notes_id: 1885 },
+          { lec_no: "L-08", title: "STACKS AND QUEUES IN ONE SHOT PART02", video_id: 1886, notes_id: 1886 }
+        ]
       },
       {
         chapter_name: "COMPUTER ORGANIZATION & ARCHITECTURE ( COA ) CRASH COURSE ONE SHOT",
         lectures: [
-          ,
-          {
-            lec_no: "L-09",
-            title: "UNIT 01",
-            video_id: 1888,
-            notes_id: 1889,
-          },
-          {
-            lec_no: "L-10",
-            title: "UNIT 02",
-            video_id: 1890,
-            notes_id: 1891,
-          },
-          {
-            lec_no: "L-11",
-            title: "UNIT 03",
-            video_id: 1892,
-            notes_id: 1893,
-          },
-          {
-            lec_no: "L-12",
-            title: "UNIT 04",
-            video_id: 1894,
-            notes_id: 1895,
-          },
-          {
-            lec_no: "L-13",
-            title: "UNIT 05",
-            video_id: 1896,
-            notes_id: 1897,
-          }
-        ],
+          { lec_no: "L-09", title: "UNIT 01", video_id: 1888, notes_id: 1889 },
+          { lec_no: "L-10", title: "UNIT 02", video_id: 1890, notes_id: 1891 },
+          { lec_no: "L-11", title: "UNIT 03", video_id: 1892, notes_id: 1893 },
+          { lec_no: "L-12", title: "UNIT 04", video_id: 1894, notes_id: 1895 },
+          { lec_no: "L-13", title: "UNIT 05", video_id: 1896, notes_id: 1897 }
+        ]
       },
       {
         chapter_name: "DATA STRUCTURE IN ONE SHOT REVISION",
         lectures: [
-          {
-            lec_no: "L-14",
-            title: "UNIT 01 PART 01",
-            video_id: 1899,
-          },
-          {
-            lec_no: "L-15",
-            title: "UNIT 01 PART 02",
-            video_id: 1900,
-            notes_id: 1901,
-          },
-          {
-            lec_no: "L-16",
-            title: "UNIT 02",
-            video_id: 1902,
-            notes_id: 1903,
-          },
-          {
-            lec_no: "L-17",
-            title: "UNIT 03",
-            video_id: 1904,
-            notes_id: 1905,
-          },
-          {
-            lec_no: "L-18",
-            title: "UNIT 04",
-            video_id: 1906,
-          },
-          {
-            lec_no: "L-19",
-            title: "UNIT 05",
-            video_id: 1907,
-            notes_id: 1908,
-          },
+          { lec_no: "L-14", title: "UNIT 01 PART 01", video_id: 1899 },
+          { lec_no: "L-15", title: "UNIT 01 PART 02", video_id: 1900, notes_id: 1901 },
+          { lec_no: "L-16", title: "UNIT 02", video_id: 1902, notes_id: 1903 },
+          { lec_no: "L-17", title: "UNIT 03", video_id: 1904, notes_id: 1905 },
+          { lec_no: "L-18", title: "UNIT 04", video_id: 1906 },
+          { lec_no: "L-19", title: "UNIT 05", video_id: 1907, notes_id: 1908 }
         ],
-        sheets: [],
+        sheets: []
       },
       {
         chapter_name: "PYTHON ONE SHOT",
         lectures: [
-          {
-            lec_no: "L-20",
-            title: "UNIT 01",
-            video_id: 1953,
-            notes_id: 1912,
-          },
-          {
-            lec_no: "L-21",
-            title: "UNIT 02",
-            video_id: 1954,
-            notes_id: 1914,
-          },
-          {
-            lec_no: "L-22",
-            title: "UNIT 03",
-            video_id: 1955,
-            notes_id: 1916,
-          },
-          {
-            lec_no: "L-23",
-            title: "UNIT 04",
-            video_id: 1956,
-            notes_id: 1918,
-          },
-          {
-            lec_no: "L-24",
-            title: "UNIT 05",
-            video_id: 1957,
-            notes_id: 1920,
-          }
+          { lec_no: "L-20", title: "UNIT 01", video_id: 1953, notes_id: 1912 },
+          { lec_no: "L-21", title: "UNIT 02", video_id: 1954, notes_id: 1914 },
+          { lec_no: "L-22", title: "UNIT 03", video_id: 1955, notes_id: 1916 },
+          { lec_no: "L-23", title: "UNIT 04", video_id: 1956, notes_id: 1918 },
+          { lec_no: "L-24", title: "UNIT 05", video_id: 1957, notes_id: 1920 }
         ],
         sheets: [
-          {
-            lec_no: "L-25",
-            title: "PYTHON 3.13.7 amd64.exe",
-            notes_id: 1910,
-          },
-        ],
+          { lec_no: "L-25", title: "PYTHON 3.13.7 amd64.exe", notes_id: 1910 }
+        ]
       },
       {
         chapter_name: "TECHNICAL COMMUNICATION ONE SHOT",
         lectures: [
-          {
-            lec_no: "L-115",
-            title: "UNIT 01 ",
-            video_id: 1922,
-            notes_id: 1923,
-          },
-          {
-            lec_no: "L-117",
-            title: "UNIT 02 ",
-            video_id: 1924,
-            notes_id: 1925,
-          },
-          {
-            lec_no: "L-119",
-            title: "UNIT 03 ",
-            video_id: 1926,
-            notes_id: 1927,
-          },
-          {
-            lec_no: "L-121",
-            title: "UNIT 04 ",
-            video_id: 1928,
-            notes_id: 1929,
-          },
-          {
-            lec_no: "L-123",
-            title: "UNIT 05 ",
-            video_id: 1930,
-            notes_id: 1931,
-          }
-        ],
+          { lec_no: "L-115", title: "UNIT 01", video_id: 1922, notes_id: 1923 },
+          { lec_no: "L-117", title: "UNIT 02", video_id: 1924, notes_id: 1925 },
+          { lec_no: "L-119", title: "UNIT 03", video_id: 1926, notes_id: 1927 },
+          { lec_no: "L-121", title: "UNIT 04", video_id: 1928, notes_id: 1929 },
+          { lec_no: "L-123", title: "UNIT 05", video_id: 1930, notes_id: 1931 }
+        ]
       },
       {
         chapter_name: "DSTL ONE SHOT",
         lectures: [
-          {
-            lec_no: "L-138",
-            title: "UNIT 01",
-            video_id: 1933,
-            notes_id: 1934,
-            notes_id: 1935,
-          },
-          {
-            lec_no: "L-141",
-            title: "UNIT 02",
-            video_id: 1936,
-            notes_id: 1937,
-            notes_id: 1938,
-          },
-          {
-            lec_no: "L-145",
-            title: "UNIT 03 ",
-            video_id: 1939,
-            notes_id: 1940,
-          },
-          {
-            lec_no: "L-147",
-            title: "UNIT 04 ",
-            video_id: 1941,
-            notes_id: 1942,
-            notes_id: 1943,
-            notes_id: 1944,
-          },
-          {
-            lec_no: "L-149",
-            title: "UNIT 05 ",
-            video_id: 1948,
-            notes_id: 1949,
-            notes_id: 1950,
-          },
-        ],
-      },
-    ],
-  },
+          { lec_no: "L-138", title: "UNIT 01", video_id: 1933, notes_id: 1934 },
+          { lec_no: "L-141", title: "UNIT 02", video_id: 1936, notes_id: 1937 },
+          { lec_no: "L-145", title: "UNIT 03", video_id: 1939, notes_id: 1940 },
+          { lec_no: "L-147", title: "UNIT 04", video_id: 1941, notes_id: 1942 },
+          { lec_no: "L-149", title: "UNIT 05", video_id: 1948, notes_id: 1949 }
+        ]
+      }
+    ]
+  }
 ];
