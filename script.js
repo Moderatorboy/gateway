@@ -294,20 +294,65 @@ async function deleteVideoBlob(videoId) {
         const GATEWAY_FAVORITE_SUBJECTS_KEY = 'gateway_favorite_subjects';
         const GATEWAY_VIEW_STATE_KEY = 'codextrms_gateway_view_state';
 
-        const requestVideoStreamSources = async (channelId, videoId) => {
-            if (!channelId || !videoId) throw new Error('Video details unavailable.');
-            const response = await fetch(STREAM_TICKET_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ channelId: String(channelId), videoId: String(videoId) }),
-                cache: 'no-store',
-            });
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok || !payload.streamUrl) {
-                throw new Error(payload.error || 'Secure video access unavailable.');
+
+const requestVideoStreamSources = async (channelId, videoId) => {
+    if (!channelId || !videoId) {
+        throw new Error("Missing channelId or videoId");
+    }
+
+    console.log("[Stream Ticket] Request started", {
+        channelId,
+        videoId
+    });
+
+    let response;
+
+    try {
+        response = await fetch(
+            "https://stream.codextrms.in/api/stream-ticket",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    channelId: String(channelId),
+                    videoId: String(videoId)
+                }),
+                cache: "no-store"
             }
-            return [payload.streamUrl];
-        };
+        );
+    } catch (error) {
+        console.error("[Stream Ticket] Network/CORS failure", error);
+        throw error;
+    }
+
+    const responseText = await response.text();
+
+    console.log("[Stream Ticket] HTTP status:", response.status);
+    console.log("[Stream Ticket] Response:", responseText);
+
+    if (!response.ok) {
+        throw new Error(
+            `Stream ticket failed: HTTP ${response.status}`
+        );
+    }
+
+    let payload;
+
+    try {
+        payload = JSON.parse(responseText);
+    } catch {
+        throw new Error("Ticket API returned invalid JSON");
+    }
+
+    if (!payload.streamUrl) {
+        throw new Error("Ticket response has no streamUrl");
+    }
+
+    return [payload.streamUrl];
+};
+
 
         const normalizeStreamUrl = (url = '') => String(url || '')
             .replace(/https?:\/\/stream\.codextrms\.in\/stream\//i, STREAM_BASE_API)
@@ -318,8 +363,8 @@ async function deleteVideoBlob(videoId) {
             return `${STREAM_BASE_API}${channelId}/${fileId}`;
         };
 
-        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 6000;
-        const VIDEO_STREAM_RETRY_ROUNDS = 2;
+        const VIDEO_STREAM_LOAD_TIMEOUT_MS = 15000;
+        const VIDEO_STREAM_MAX_RETRIES = 3;
 
         const showVideoStreamError = (videoElement, sources, message, retryAction) => {
             const loader = document.getElementById('videoLoaderOverlay');
@@ -339,8 +384,14 @@ async function deleteVideoBlob(videoId) {
             retryButton.onclick = () => {
                 retryButton.remove();
                 if (text) text.textContent = 'Loading secure video stream...';
-                if (typeof retryAction === 'function') retryAction();
-                else applyVideoStreamSource(videoElement, sources);
+                if (typeof retryAction === 'function') {
+                    retryAction();
+                } else if (videoElement && videoElement._lastStreamContext) {
+                    const ctx = videoElement._lastStreamContext;
+                    loadSecureVideo(videoElement, ctx.channelId, ctx.videoId);
+                } else if (sources && sources.length) {
+                    applyVideoStreamSource(videoElement, sources);
+                }
             };
             loader.style.display = 'flex';
         };
@@ -360,8 +411,11 @@ async function deleteVideoBlob(videoId) {
             videoElement.onstalled = null;
         };
 
-        const applyVideoStreamSource = (videoElement, sources) => {
-            if (!videoElement || !sources || !sources.length) return;
+        const applyVideoStreamSource = (videoElement, sources, channelId, videoId) => {
+            if (!videoElement) return;
+            if (channelId && videoId) {
+                videoElement._lastStreamContext = { channelId, videoId };
+            }
             const loader = document.getElementById('videoLoaderOverlay');
             if (loader) {
                 loader.querySelector('[data-video-retry]')?.remove();
@@ -371,7 +425,6 @@ async function deleteVideoBlob(videoId) {
             stopVideoStreamFallback(videoElement);
 
             const loadToken = Symbol('stream-load');
-            const maxAttempts = sources.length * VIDEO_STREAM_RETRY_ROUNDS;
             let attemptIndex = 0;
             let settledSource = false;
             videoElement._streamLoadToken = loadToken;
@@ -389,45 +442,90 @@ async function deleteVideoBlob(videoId) {
                 settledSource = true;
                 videoElement._isStreamLoading = false;
                 clearLoadTimer();
+                const currentLoader = document.getElementById('videoLoaderOverlay');
+                if (currentLoader) currentLoader.style.display = 'none';
             };
 
-            const trySource = () => {
+            const triggerFailure = (msg) => {
+                clearLoadTimer();
+                videoElement._isStreamLoading = false;
+                videoElement.pause();
+                videoElement.removeAttribute('src');
+                videoElement.load();
+                videoElement.onerror = null;
+                videoElement.onloadedmetadata = null;
+                videoElement.oncanplay = null;
+                videoElement.onplaying = null;
+                videoElement.onstalled = null;
+                showVideoStreamError(
+                    videoElement,
+                    sources,
+                    msg || 'Video load nahi ho paayi. Connection check karke retry karein.',
+                    () => loadSecureVideo(videoElement, channelId, videoId)
+                );
+            };
+
+            const trySource = async () => {
                 if (videoElement._streamLoadToken !== loadToken || settledSource) return;
                 clearLoadTimer();
-                if (attemptIndex >= maxAttempts) {
-                    clearLoadTimer();
-                    videoElement._isStreamLoading = false;
-                    videoElement.pause();
-                    videoElement.removeAttribute('src');
-                    videoElement.load();
-                    videoElement.onerror = null;
-                    videoElement.onloadedmetadata = null;
-                    videoElement.oncanplay = null;
-                    videoElement.onplaying = null;
-                    videoElement.onstalled = null;
-                    showVideoStreamError(videoElement, sources);
+
+                if (attemptIndex >= VIDEO_STREAM_MAX_RETRIES) {
+                    triggerFailure();
                     return;
                 }
-                const source = sources[attemptIndex % sources.length];
-                let playableSource = source;
-                if (attemptIndex > 0) {
-                    const separator = source.includes('?') ? '&' : '?';
-                    playableSource = `${source}${separator}retry=${attemptIndex + 1}-${Date.now()}`;
+
+                let playableSource = '';
+
+                // First attempt: try initial ticket source
+                // Subsequent retries: fetch a fresh ticket from the backend
+                if (attemptIndex === 0 && sources && sources.length) {
+                    playableSource = sources[0];
+                } else if (channelId && videoId) {
+                    const lText = document.getElementById('videoLoaderOverlay')?.querySelector('.video-loader-text');
+                    if (lText) lText.textContent = 'Refreshing ticket & retrying stream...';
+                    try {
+                        const freshSources = await requestVideoStreamSources(channelId, videoId);
+                        if (videoElement._streamLoadToken !== loadToken || settledSource) return;
+                        if (freshSources && freshSources.length) {
+                            sources = freshSources;
+                            playableSource = freshSources[0];
+                        }
+                    } catch (err) {
+                        console.warn('Retry ticket refresh error:', err);
+                    }
                 }
+
+                if (!playableSource) {
+                    if (sources && sources.length) {
+                        playableSource = sources[0];
+                    } else if (channelId && videoId) {
+                        playableSource = `${STREAM_BASE_API}${channelId}/${videoId}`;
+                    } else {
+                        triggerFailure();
+                        return;
+                    }
+                }
+
                 attemptIndex += 1;
                 videoElement.pause();
                 settledSource = false;
                 videoElement.src = playableSource;
                 videoElement.load();
                 videoElement.play().catch(() => {});
+
                 videoElement._streamLoadTimer = setTimeout(() => {
                     if (videoElement._streamLoadToken === loadToken && !settledSource && videoElement.readyState < 2) {
+                        console.warn(`[Stream] Load timed out after ${VIDEO_STREAM_LOAD_TIMEOUT_MS}ms, retrying with fresh ticket...`);
                         trySource();
                     }
                 }, VIDEO_STREAM_LOAD_TIMEOUT_MS);
             };
+
             videoElement.onerror = () => {
-                trySource();
+                if (videoElement._streamLoadToken === loadToken && !settledSource) {
+                    console.warn('[Stream] Video playback error, retrying with fresh ticket...');
+                    trySource();
+                }
             };
             videoElement.onloadedmetadata = markSourceReady;
             videoElement.oncanplay = markSourceReady;
@@ -437,13 +535,17 @@ async function deleteVideoBlob(videoId) {
                     markSourceReady();
                 }
             };
+
             trySource();
         };
 
         const loadSecureVideo = async (videoElement, channelId, videoId) => {
+            if (videoElement && channelId && videoId) {
+                videoElement._lastStreamContext = { channelId, videoId };
+            }
             try {
                 const sources = await requestVideoStreamSources(channelId, videoId);
-                applyVideoStreamSource(videoElement, sources);
+                applyVideoStreamSource(videoElement, sources, channelId, videoId);
             } catch (error) {
                 const message = error instanceof Error ? error.message : 'Secure video access unavailable.';
                 showVideoStreamError(videoElement, [], message, () => loadSecureVideo(videoElement, channelId, videoId));
