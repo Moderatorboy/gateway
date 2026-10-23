@@ -20,6 +20,11 @@ window.dataClass202 = [
             video_id: 2267,
           },
           {
+            lec_no: "L-02 Nidhi Ma'am",
+            title: "Unit-01 Part-02",
+            video_id: 2271,
+          },
+          {
             lec_no: "L-01 Nidhi Ma'am",
             title: "Unit-02 Part-01",
             video_id: 2269,
