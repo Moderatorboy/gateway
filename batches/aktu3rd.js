@@ -5,6 +5,9 @@ window.dataClass202 = [
     channel_id: "-1003875077565",
     chapters: [
       {
+        chapter_name: "DATA STRUCTURE Nidhi Ma'am",
+        lectures: [
+          {
             lec_no: "L-01 Nidhi Ma'am",
             title: "Unit-01 Part-01",
             video_id: 2266,
@@ -24,6 +27,7 @@ window.dataClass202 = [
             title: "Unit-02 Part-02",
             video_id: 2268,
           },
+        ],
       {
         chapter_name: "DATA STRUCTURE UNIT-1",
         lectures: [
